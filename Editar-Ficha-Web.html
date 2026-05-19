@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Ficha - ZERO RPG</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #121212; color: #e0e0e0; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background-color: #1e1e24; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.8); }
+        h1 { color: #2e8bc0; text-align: center; border-bottom: 2px solid #2e8bc0; padding-bottom: 10px; }
+        
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #a1a1a1; }
+        input[type="text"], input[type="number"] { width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #4e4e50; background-color: #121212; color: white; box-sizing: border-box; }
+        
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        
+        .info-box { background-color: #383846; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #d4af37; font-size: 0.9em; }
+        
+        .btn { padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; font-size: 1.1em; }
+        .btn-salvar { background-color: #28a745; color: white; margin-bottom: 10px; }
+        .btn-cancelar { background-color: #4e4e50; color: white; text-align: center; text-decoration: none; display: block; box-sizing: border-box;}
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>✏️ Atualizar Atributos</h1>
+
+        <form action="/fichas/salvar" method="post">
+            <input type="hidden" name="fichaId" th:value="${ficha.id}">
+            <input type="hidden" name="usuarioLogadoId" th:value="${usuarioLogadoId}">
+
+            <div class="form-group">
+                <label>Nome do Personagem:</label>
+                <input type="text" name="nome" th:value="${ficha.nome}" required>
+            </div>
+
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Classe:</label>
+                    <input type="text" name="classe" th:value="${ficha.classe}">
+                </div>
+                <div class="form-group">
+                    <label>Título:</label>
+                    <input type="text" name="titulo" th:value="${ficha.titulo}">
+                </div>
+            </div>
+
+            <h3 style="color: #c3073f; margin-top: 30px; border-bottom: 1px solid #4e4e50;">Status Base</h3>
+            
+            <div class="grid-2">
+                <div class="form-group"><label>💪 Força:</label><input type="number" name="forca" th:value="${ficha.forca}"></div>
+                <div class="form-group"><label>❤️ Vida:</label><input type="number" name="vida" th:value="${ficha.vida}"></div>
+                <div class="form-group"><label>🏃 Agilidade:</label><input type="number" name="agilidade" th:value="${ficha.agilidade}"></div>
+                <div class="form-group"><label>💧 Mana:</label><input type="number" name="mana" th:value="${ficha.mana}"></div>
+                <div class="form-group"><label>🗣️ Carisma:</label><input type="number" name="carisma" th:value="${ficha.carisma}"></div>
+                <div class="form-group"><label>🍀 Sorte:</label><input type="number" name="sorte" th:value="${ficha.sorte}"></div>
+            </div>
+
+            <div class="info-box">
+                <strong>Substatus Automáticos:</strong><br>
+                Os teus substatus (Defesa atual: <span th:text="${ficha.getDefesa()}"></span>, Vontade: <span th:text="${ficha.getVontade()}"></span>, etc.) não podem ser editados. O sistema irá recalculá-los automaticamente assim que gravares as alterações de Força, Vida, Agilidade e Mana!
+            </div>
+
+            <button type="submit" class="btn btn-salvar">💾 Guardar Alterações</button>
+            <a th:href="@{/painel-player(usuarioId=${usuarioLogadoId})}" class="btn btn-cancelar">Cancelar</a>
+        </form>
+    </div>
+
+</body>
+</html>

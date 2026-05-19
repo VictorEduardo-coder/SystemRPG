@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O Meu Painel - ZERO RPG</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #1e1e24;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.8);
+        }
+        h1 { color: #2e8bc0; text-align: center; border-bottom: 2px solid #2e8bc0; padding-bottom: 15px; }
+        
+        /* Estilos dos Cartões */
+        .card { background-color: #2b2b36; padding: 20px; border-radius: 8px; margin-top: 20px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px; }
+        .stat-item { background-color: #383846; padding: 10px; border-radius: 4px; text-align: center; }
+        
+        /* Botões */
+        .btn { padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; text-decoration: none; display: inline-block; }
+        .btn-criar { background-color: #28a745; color: white; width: 100%; margin-top: 10px; }
+        .btn-apagar { background-color: #c3073f; color: white; }
+        .btn-hab { background-color: #d4af37; color: #121212; }
+        
+        input[type="text"] { width: 95%; padding: 10px; margin-top: 10px; border-radius: 4px; border: 1px solid #4e4e50; background-color: #121212; color: white; }
+        .actions { margin-top: 20px; display: flex; gap: 10px; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>🛡️ O Meu Aventureiro</h1>
+
+        <div th:if="${ficha == null}" class="card">
+            <h2 style="text-align: center;">Ainda não tens um personagem!</h2>
+            <p style="text-align: center;">Cria a tua ficha de nível 1 para começares a jogar.</p>
+            
+            <form action="/fichas/criar" method="post">
+                <input type="hidden" name="usuarioId" th:value="${usuarioId}">
+                <label>Nome do Personagem:</label>
+                <input type="text" name="nomePersonagem" required placeholder="Ex: Yuusha...">
+                <button type="submit" class="btn btn-criar">✨ Criar Nova Ficha</button>
+            </form>
+        </div>
+
+        <div th:if="${ficha != null}">
+            
+            <div class="card" style="border-left: 5px solid #2e8bc0;">
+                <h2 th:text="${ficha.nome}">Nome do Personagem</h2>
+                <p><strong>Classe:</strong> <span th:text="${ficha.classe}"></span> | <strong>Nível:</strong> <span th:text="${ficha.nivel}"></span></p>
+                
+                <div class="stats-grid">
+                    <div class="stat-item">❤️ Vida: <span th:text="${ficha.vida}"></span></div>
+                    <div class="stat-item">💧 Mana: <span th:text="${ficha.mana}"></span></div>
+                    <div class="stat-item">🛡️ Defesa: <span th:text="${ficha.getDefesa()}"></span></div>
+                    <div class="stat-item">🏃 Esquiva: <span th:text="${ficha.getEsquiva()}"></span></div>
+                </div>
+                
+                <p style="font-size: 0.9em; color: #888; margin-top: 15px;">Nota: A Defesa e Esquiva são calculadas automaticamente com base nos teus atributos.</p>
+            </div>
+
+            <div class="actions">
+                <a th:href="@{/habilidades(classeId=1, fichaId=${ficha.id})}" class="btn btn-hab">📜 Ver Habilidades</a>
+                <a th:href="@{/fichas/editar(fichaId=${ficha.id}, usuarioLogadoId=${usuarioId})}" class="btn" style="background-color: #2e8bc0; color: white;">✏️ Editar Ficha</a>
+                
+                <form action="/fichas/deletar" method="post" onsubmit="return confirm('Tens a certeza absoluta que queres eliminar o teu personagem? Esta ação é irreversível!');">
+                    <input type="hidden" name="fichaId" th:value="${ficha.id}">
+                    <input type="hidden" name="usuarioId" th:value="${usuarioId}">
+                    <button type="submit" class="btn btn-apagar">☠️ Apagar Ficha</button>
+                </form>
+            </div>
+
+        </div>
+
+        <br><br>
+        <div style="display: flex; justify-content: space-between;">
+            <a href="/login" style="color: #888;">← Logout</a>
+            <a href="/manual" style="color: #2e8bc0;">Ler Manual de Regras</a>
+        </div>
+    </div>
+
+</body>
+</html>

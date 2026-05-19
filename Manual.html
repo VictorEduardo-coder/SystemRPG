@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual do Sistema ZERO</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1a1a1d; /* Tema escuro RPG */
+            color: #d3d3d3;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: #2b2b30;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+        }
+        h1 {
+            text-align: center;
+            color: #c3073f; /* Vermelho RPG */
+            border-bottom: 2px solid #c3073f;
+            padding-bottom: 10px;
+        }
+        h2.categoria-titulo {
+            color: #6f2232;
+            margin-top: 40px;
+            border-bottom: 1px solid #4e4e50;
+            padding-bottom: 5px;
+        }
+        .regra-card {
+            background-color: #3b3b40;
+            border-left: 4px solid #950740;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 5px 5px 0;
+        }
+        .regra-titulo {
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+        .regra-descricao {
+            white-space: pre-wrap; /* Mantém as quebras de linha digitadas no banco */
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>📜 Manual de Regras</h1>
+
+        <div th:each="categoria : ${regrasAgrupadas}">
+            
+            <h2 class="categoria-titulo" th:text="${categoria.key}">Nome da Categoria</h2>
+
+            <div class="regra-card" th:each="regra : ${categoria.value}">
+                <div class="regra-titulo" th:text="${regra.titulo}">Título da Regra</div>
+                <div class="regra-descricao" th:text="${regra.descricao}">Descrição Completa da Regra</div>
+            </div>
+
+        </div>
+
+        <br>
+        <a href="/login" style="color: #c3073f;">← Voltar</a>
+    </div>
+
+</body>
+</html>
