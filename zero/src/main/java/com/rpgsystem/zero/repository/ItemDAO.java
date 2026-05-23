@@ -59,4 +59,31 @@ public class ItemDAO {
             e.printStackTrace();
         }
     }
+
+    // Para excluir
+public void deletarItem(Long id) {
+    String sql = "DELETE FROM inventario_rpg WHERE id = ?";
+    try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+        stmt.setLong(1, id);
+        stmt.executeUpdate();
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+}
+
+// Para atualizar
+public void atualizarItem(ItemRPG item) {
+    String sql = "UPDATE inventario_rpg SET nome = ?, tipo = ?, raridade = ?, quantidade = ?, poder = ? WHERE id = ?";
+    try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+        stmt.setString(1, item.getNome());
+        stmt.setString(2, item.getTipo());
+        stmt.setString(3, item.getRaridade());
+        stmt.setInt(4, item.getQuantidade());
+        stmt.setInt(5, item.getPoder());
+        stmt.setLong(6, item.getId());
+        stmt.executeUpdate();
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+}
 }
