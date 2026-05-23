@@ -12,17 +12,14 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        // Habilita um broker em memória que vai carregar as mensagens para o tópico específico
         config.enableSimpleBroker("/topic"); 
-        
-        // Define o prefixo das mensagens que vão do cliente para o servidor (caso você precise no futuro)
         config.setApplicationDestinationPrefixes("/app");
     }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        // Define a rota ("/ws-rpg") onde o front-end vai se conectar para escutar o WebSocket.
-        // O withSockJS() cria um fallback confiável caso a rede do jogador bloqueie WebSockets puros.
-        registry.addEndpoint("/ws-rpg").withSockJS();
+        registry.addEndpoint("/ws-rpg")
+                .setAllowedOriginPatterns("*") // <-- ESSA É A LINHA MÁGICA QUE FALTAVA!
+                .withSockJS();
     }
 }
