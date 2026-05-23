@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mochila do Herói</title>
+    <style>
+        /* Tema Fantasia/RPG Escuro */
+        body {
+            background-color: #1a1a1a;
+            color: #d4d4d4;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #2a2a2a;
+            border: 3px solid #b8860b; /* Borda dourada velha */
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 0 15px rgba(184, 134, 11, 0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #daa520;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-bottom: 1px solid #444;
+            padding-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #444;
+        }
+
+        th {
+            background-color: #333;
+            color: #daa520;
+        }
+
+        /* Sistema de Cores por Raridade */
+        .raridade-comum { color: #ffffff; }
+        .raridade-raro { color: #0070dd; font-weight: bold; }
+        .raridade-epico { color: #a335ee; font-weight: bold; }
+        .raridade-lendario { color: #ff8000; font-weight: bold; text-shadow: 0 0 5px #ff8000; }
+
+        .btn-usar {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        
+        .btn-usar:hover { background-color: #45a049; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Inventário</h1>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Tipo</th>
+                <th>Qtd</th>
+                <th>Poder</th>
+                <th>Ação</th>
+            </tr>
+        </thead>
+        <!-- O JavaScript irá buscar os dados na API e injetar as linhas aqui dentro -->
+        <tbody id="lista-itens">
+            
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>
