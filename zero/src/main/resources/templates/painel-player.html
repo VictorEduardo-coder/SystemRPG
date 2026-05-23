@@ -20,6 +20,7 @@
         .btn-criar { background-color: #28a745; color: white; width: 100%; margin-top: 10px; }
         .btn-apagar { background-color: #c3073f; color: white; }
         .btn-hab { background-color: #d4af37; color: #121212; }
+        .btn-inv { background-color: #e67e22; color: white; } /* Nova cor para o botão de inventário */
         .btn-editar { background-color: #2e8bc0; color: white; }
         .btn-rolar { background-color: #9b59b6; color: white; white-space: nowrap; }
         input[type="text"] { width: 95%; padding: 10px; margin-top: 10px; border-radius: 4px; border: 1px solid #4e4e50; background-color: #121212; color: white; }
@@ -136,6 +137,11 @@
                 <a th:href="@{/habilidades(classeId=1, fichaId=${ficha.id}, usuarioId=${usuarioId})}" class="btn btn-hab">
                 📜 Ver Habilidades
                 </a>  
+                
+                <a th:href="@{/inventario(fichaId=${ficha.id}, usuarioId=${usuarioId})}" class="btn btn-inv">
+                🎒 Inventário
+                </a>
+
                 <a th:href="@{/fichas/editar(fichaId=${ficha.id}, usuarioId=${usuarioId})}" class="btn btn-editar">✏️ Editar Ficha</a>                
                 <form action="/fichas/deletar" method="post" style="margin: 0;" onsubmit="return confirm('Tens a certeza absoluta que queres eliminar o teu personagem? Esta ação é irreversível!');">
                     <input type="hidden" name="fichaId" th:value="${ficha.id}" />
