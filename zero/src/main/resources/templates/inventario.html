@@ -17,25 +17,67 @@
             max-width: 800px;
             margin: 0 auto;
             background: #2a2a2a;
-            border: 3px solid #b8860b; /* Borda dourada velha */
+            border: 3px solid #b8860b;
             border-radius: 8px;
             padding: 20px;
             box-shadow: 0 0 15px rgba(184, 134, 11, 0.3);
         }
 
-        h1 {
+        h1, h3 {
             text-align: center;
             color: #daa520;
             text-transform: uppercase;
             letter-spacing: 2px;
+        }
+
+        h1 {
             border-bottom: 1px solid #444;
             padding-bottom: 10px;
         }
 
+        /* Estilos do Formulário de Adição */
+        .form-loot {
+            background-color: #1e1e1e;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #444;
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: space-between;
+        }
+
+        .form-loot input, .form-loot select {
+            background-color: #2a2a2a;
+            color: white;
+            border: 1px solid #555;
+            padding: 8px;
+            border-radius: 4px;
+            font-family: inherit;
+        }
+
+        .form-loot input[type="text"] { flex-grow: 1; min-width: 200px; }
+        .form-loot input[type="number"] { width: 70px; }
+
+        .btn-adicionar {
+            background-color: #b8860b;
+            color: #1a1a1a;
+            border: none;
+            padding: 8px 15px;
+            cursor: pointer;
+            border-radius: 3px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .btn-adicionar:hover { background-color: #daa520; }
+
+        /* Estilos da Tabela */
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-top: 10px;
         }
 
         th, td {
@@ -72,6 +114,29 @@
 <div class="container">
     <h1>Inventário</h1>
     
+    <div class="form-loot">
+        <input type="text" id="nomeItem" placeholder="Nome do Item" required>
+        
+        <select id="tipoItem">
+            <option value="Arma">Arma</option>
+            <option value="Armadura">Armadura</option>
+            <option value="Consumível">Consumível</option>
+            <option value="Acessório">Acessório</option>
+        </select>
+
+        <select id="raridadeItem">
+            <option value="Comum">Comum</option>
+            <option value="Raro">Raro</option>
+            <option value="Épico">Épico</option>
+            <option value="Lendário">Lendário</option>
+        </select>
+
+        <input type="number" id="qtdItem" placeholder="Qtd" min="1" value="1" required>
+        <input type="number" id="poderItem" placeholder="Poder" value="0" required>
+        
+        <button class="btn-adicionar" onclick="adicionarItem()">Guardar Loot</button>
+    </div>
+
     <table>
         <thead>
             <tr>
@@ -82,12 +147,94 @@
                 <th>Ação</th>
             </tr>
         </thead>
-        <!-- O JavaScript irá buscar os dados na API e injetar as linhas aqui dentro -->
         <tbody id="lista-itens">
-            
-        </tbody>
+            </tbody>
     </table>
 </div>
+
+<script>
+    // 1. Função para buscar os itens da API e preencher a tabela
+    async function carregarInventario() {
+        const tbody = document.getElementById('lista-itens');
+        tbody.innerHTML = '<tr><td colspan="5">Procurando na mochila...</td></tr>';
+
+        try {
+            const resposta = await fetch('/api/inventario');
+            const itens = await resposta.json();
+
+            tbody.innerHTML = ''; // Limpa o "Procurando..."
+
+            if (itens.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5">Sua mochila está vazia.</td></tr>';
+                return;
+            }
+
+            // Para cada item, cria uma linha na tabela
+            itens.forEach(item => {
+                // Formata a classe de raridade para minúsculo e sem acento (ex: Lendário -> lendario)
+                let classeRaridade = 'raridade-' + item.raridade.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="${classeRaridade}">${item.nome}</td>
+                    <td>${item.tipo}</td>
+                    <td>${item.quantidade}</td>
+                    <td>+${item.poder}</td>
+                    <td><button class="btn-usar" onclick="usarItem(${item.id})">Usar</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } catch (erro) {
+            console.error("Erro ao carregar inventário:", erro);
+            tbody.innerHTML = '<tr><td colspan="5" style="color:red;">Erro ao abrir a mochila!</td></tr>';
+        }
+    }
+
+    // 2. Função para ler o formulário e enviar para a API
+    async function adicionarItem() {
+        const novoItem = {
+            nome: document.getElementById('nomeItem').value,
+            tipo: document.getElementById('tipoItem').value,
+            raridade: document.getElementById('raridadeItem').value,
+            quantidade: parseInt(document.getElementById('qtdItem').value),
+            poder: parseInt(document.getElementById('poderItem').value)
+        };
+
+        // Validação simples
+        if (!novoItem.nome) {
+            alert("O item precisa de um nome!");
+            return;
+        }
+
+        try {
+            const resposta = await fetch('/api/inventario/adicionar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(novoItem)
+            });
+
+            if (resposta.ok) {
+                // Limpa o nome do item para o próximo
+                document.getElementById('nomeItem').value = '';
+                // Recarrega a tabela para mostrar o novo item
+                carregarInventario(); 
+            } else {
+                alert("Erro ao guardar o item na mochila.");
+            }
+        } catch (erro) {
+            console.error("Erro ao adicionar:", erro);
+        }
+    }
+
+    function usarItem(id) {
+        alert("Função de usar item (ID " + id + ") em desenvolvimento!");
+    }
+
+    // Carrega o inventário automaticamente quando a página abre
+    window.onload = carregarInventario;
+</script>
 
 </body>
 </html>
