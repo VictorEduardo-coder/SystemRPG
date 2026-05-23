@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Sistema de Classes e Habilidades</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #1a1a1d; color: #d3d3d3; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; background-color: #2b2b30; padding: 30px; border-radius: 10px; }
+        h1 { color: #c3073f; text-align: center; border-bottom: 2px solid #c3073f; padding-bottom: 10px; }
+        .section-header { color: #2e8bc0; margin-top: 40px; border-bottom: 2px solid #2e8bc0; padding-bottom: 5px; }
+        
+        .master-panel { background-color: #241619; padding: 20px; border: 2px dashed #c3073f; border-radius: 8px; margin-bottom: 30px; }
+        .classe-accordion { background-color: #3b3b40; margin-bottom: 15px; border-radius: 8px; border-left: 5px solid #4e4e50; overflow: hidden; }
+        .classe-accordion.hibrida { border-left: 5px solid #d4af37; }
+        .classe-accordion summary { background-color: #2e2e33; padding: 15px; font-size: 1.2em; color: #ffffff; cursor: pointer; font-weight: bold; list-style: none; outline: none; transition: background 0.2s; }
+        .classe-accordion summary::-webkit-details-marker { display: none; }
+        .classe-accordion summary:hover { background-color: #3b3b40; }
+        .classe-content { padding: 20px; }
+        .tier-titulo { color: #a1a1a1; margin-top: 20px; border-bottom: 1px solid #4e4e50; padding-bottom: 5px; font-size: 1.1em; }
+        .hab-card { background-color: #242428; padding: 15px; margin: 10px 0; border-radius: 5px; border-left: 4px solid #4e4e50; display: flex; justify-content: space-between; align-items: center; }
+        .hab-card.desbloqueada { border-left: 4px solid #c3073f; background-color: #4a2e35; }
+        input, select, textarea { width: 100%; padding: 8px; margin: 5px 0; background: #1a1a1d; color: white; border: 1px solid #4e4e50; box-sizing: border-box; }
+        button { background: #c3073f; color: white; border: none; padding: 10px; cursor: pointer; width: 100%; margin-top: 5px; font-weight: bold; }
+        .master-details { background-color: #3b3b40; margin-bottom: 10px; border-radius: 5px; border: 1px solid #4e4e50; }
+        .master-details summary { cursor: pointer; padding: 12px; color: #2e8bc0; font-weight: bold; outline: none; list-style: none; }
+        .master-details summary::-webkit-details-marker { display: none; }
+        .details-content { padding: 15px; border-top: 1px solid #4e4e50; }
+        .hibrida-container { background-color: #241619; padding: 10px; border-left: 3px solid #d4af37; margin: 10px 0; display: none; }
+        .error-msg { color: #c3073f; font-size: 0.85em; font-weight: bold; display: none; margin-top: 5px; }
+        .status-badge { padding: 5px 10px; border-radius: 3px; font-weight: bold; font-size: 0.8em; }
+        .badge-sim { background-color: #c3073f; color: white; }
+        .badge-nao { background-color: #4e4e50; color: #d3d3d3; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>🗡️ Compêndio de Classes</h1>
+
+        <div th:if="${isMestre}" class="master-panel">
+            <h3 style="margin-top: 0; color: #c3073f;">🛠️ Painel do Mestre</h3>
+            
+            <details class="master-details">
+                <summary>➕ Criar Nova Classe</summary>
+                <div class="details-content">
+                    <form action="/classes/salvar" method="post" onsubmit="return validarClassesHibridas(event)">
+                        <input type="hidden" name="usuarioId" th:value="${usuarioId}">
+                        <input type="text" name="nomeClasse" placeholder="Nome da Classe" required>
+                        <input type="text" name="bonus" placeholder="Bônus da Classe">
+                        <input type="text" name="debuff" placeholder="Debuff da Classe">
+                        
+                        <select name="tipo" id="tipo-classe" onchange="toggleHibridaFields()">
+                            <option value="COMUM">Comum</option>
+                            <option value="HIBRIDA">Híbrida</option>
+                        </select>
+                        
+                        <div id="hibrida-fields" class="hibrida-container">
+                            <label style="color: #d3d3d3; font-size: 0.9em;">Selecione as duas classes base:</label>
+                            <select name="classeBase1" id="classe-base-1">
+                                <option value="" disabled selected>-- Primeira Classe --</option>
+                                <option th:each="c : ${todasAsClasses}" th:value="${c.id}" th:text="${c.nome}"></option>
+                            </select>
+                            
+                            <select name="classeBase2" id="classe-base-2">
+                                <option value="" disabled selected>-- Segunda Classe --</option>
+                                <option th:each="c : ${todasAsClasses}" th:value="${c.id}" th:text="${c.nome}"></option>
+                            </select>
+                            <div id="hibrida-error" class="error-msg">⚠️ As duas classes não podem ser iguais!</div>
+                        </div>
+
+                        <textarea name="descricao" placeholder="Descrição da Classe"></textarea>
+                        <button type="submit">Salvar Classe</button>
+                    </form>
+                </div>
+            </details>
+            
+            <details class="master-details">
+                <summary>➕ Adicionar Nova Habilidade</summary>
+                <div class="details-content">
+                    <form action="/habilidades/salvar" method="post">
+                        <input type="hidden" name="usuarioId" th:value="${usuarioId}">
+                        
+                        <label style="color: #a1a1a1; font-size: 0.9em; font-weight: bold;">Vincular Habilidade à Classe:</label>
+                        <select name="classeId" required>
+                            <option value="" disabled selected>-- Selecione a Classe Existente --</option>
+                            <option th:each="c : ${todasAsClasses}" th:value="${c.id}" th:text="${c.nome}"></option>
+                        </select>
+                        
+                        <input type="text" name="nome" placeholder="Nome da Habilidade" required>
+                        <select name="tier">
+                            <option value="PASSIVA">Passiva</option>
+                            <option value="ATIVO_1">Ativa Tier 1</option>
+                            <option value="ATIVO_2">Ativa Tier 2</option>
+                            <option value="ATIVO_3">Ativa Tier 3</option>
+                            <option value="SUPREMO">Supremo</option>
+                        </select>
+                        <textarea name="descricao" placeholder="Descrição da Habilidade"></textarea>
+                        <button type="submit">Salvar Habilidade</button>
+                    </form>
+                </div>
+            </details>
+        </div>
+
+        <h2 class="section-header">🛡️ Classes Comuns</h2>
+        
+        <details class="classe-accordion" th:each="c : ${todasAsClasses}" th:if="${!c.ehHibrida}">
+            <summary th:text="${c.nome}">Nome da Classe</summary>
+            
+            <div class="classe-content">
+                <p><strong>Bônus:</strong> <span th:text="${c.bonus}"></span> | <strong>Debuff:</strong> <span th:text="${c.debuff}"></span></p>
+                <p th:text="${c.descricao}">Descrição...</p>
+                
+                <h3 style="color: #c3073f; margin-top: 20px;">Árvore de Habilidades</h3>
+                
+                <div th:each="tier : ${tiers}">
+                    <h4 class="tier-titulo" th:text="${tier}">Tier</h4>
+                    
+                    <div th:each="hab : ${todasAsHabilidades}">
+                        <th:block th:if="${hab.tier == tier and hab.classeId == c.id}">
+                            <div class="hab-card" th:classappend="${hab.desbloqueada} ? 'desbloqueada' : ''">
+                                <div class="hab-info">
+                                    <h4 th:text="${hab.nome}" style="margin: 0 0 5px 0;">Nome</h4>
+                                    <div style="font-size: 0.9em; color: #a1a1a1; margin-bottom: 8px;">
+                                        ⚔️ Dano: <span th:text="${hab.dano}">0</span> | 💧 Mana: <span th:text="${hab.custoMana}">0</span>
+                                    </div>
+                                    <p th:text="${hab.descricao}" style="margin: 0; font-size: 0.9em;">Descrição</p>
+                                </div>
+                                <div>
+                                    <span th:if="${hab.desbloqueada}" class="status-badge badge-sim">Adquirida</span>
+                                    <span th:unless="${hab.desbloqueada}" class="status-badge badge-nao">Bloqueada</span>
+                                </div>
+                            </div>
+                        </th:block>
+                    </div>
+                </div>
+            </div>
+        </details>
+
+        <h2 class="section-header" style="color: #d4af37; border-color: #d4af37;">⚔️ Classes Híbridas</h2>
+        
+        <details class="classe-accordion hibrida" th:each="c : ${todasAsClasses}" th:if="${c.ehHibrida}">
+            <summary th:text="${c.nome}">Nome da Classe Híbrida</summary>
+            
+            <div class="classe-content">
+                <p><strong>Bônus:</strong> <span th:text="${c.bonus}"></span> | <strong>Debuff:</strong> <span th:text="${c.debuff}"></span></p>
+                <p th:text="${c.descricao}">Descrição...</p>
+                
+                <h3 style="color: #c3073f; margin-top: 20px;">Árvore de Habilidades</h3>
+                
+                <div th:each="tier : ${tiers}">
+                    <h4 class="tier-titulo" th:text="${tier}">Tier</h4>
+                    
+                    <div th:each="hab : ${todasAsHabilidades}">
+                        <th:block th:if="${hab.tier == tier}">
+                            <th:block th:if="${hab.classeId == c.id or hab.classeId == c.classeBaseId or hab.classeId == c.classeBase2Id}">
+                                <div class="hab-card" th:classappend="${hab.desbloqueada} ? 'desbloqueada' : ''">
+                                    <div class="hab-info">
+                                        <h4 th:text="${hab.nome}" style="margin: 0 0 5px 0;">Nome</h4>
+                                        <div style="font-size: 0.9em; color: #a1a1a1; margin-bottom: 8px;">
+                                            ⚔️ Dano: <span th:text="${hab.dano}">0</span> | 💧 Mana: <span th:text="${hab.custoMana}">0</span>
+                                        </div>
+                                        <p th:text="${hab.descricao}" style="margin: 0; font-size: 0.9em;">Descrição</p>
+                                    </div>
+                                    <div>
+                                        <span th:if="${hab.desbloqueada}" class="status-badge badge-sim">Adquirida</span>
+                                        <span th:unless="${hab.desbloqueada}" class="status-badge badge-nao">Bloqueada</span>
+                                    </div>
+                                </div>
+                            </th:block>
+                        </th:block>
+                    </div>
+                </div>
+            </div>
+        </details>
+
+        <br>
+        <a th:href="@{${isMestre ? '/painel-mestre' : '/painel-player'}(usuarioId=${usuarioId})}" 
+           style="color: #c3073f; text-decoration: none; font-weight: bold;">
+           ← Voltar ao Painel
+        </a>
+    </div>
+
+    <script>
+        function toggleHibridaFields() {
+            const tipo = document.getElementById('tipo-classe').value;
+            const container = document.getElementById('hibrida-fields');
+            const select1 = document.getElementById('classe-base-1');
+            const select2 = document.getElementById('classe-base-2');
+            
+            if (tipo === 'HIBRIDA') {
+                container.style.display = 'block';
+                select1.required = true;
+                select2.required = true;
+            } else {
+                container.style.display = 'none';
+                select1.required = false;
+                select2.required = false;
+                select1.value = "";
+                select2.value = "";
+                document.getElementById('hibrida-error').style.display = 'none';
+            }
+        }
+
+        function validarClassesHibridas(event) {
+            const tipo = document.getElementById('tipo-classe').value;
+            if (tipo === 'HIBRIDA') {
+                const select1 = document.getElementById('classe-base-1').value;
+                const select2 = document.getElementById('classe-base-2').value;
+                const errorMsg = document.getElementById('hibrida-error');
+                
+                if (select1 === select2 && select1 !== "") {
+                    errorMsg.style.display = 'block'; 
+                    event.preventDefault(); 
+                    return false;
+                } else {
+                    errorMsg.style.display = 'none';
+                }
+            }
+            return true;
+        }
+    </script>
+</body>
+</html>

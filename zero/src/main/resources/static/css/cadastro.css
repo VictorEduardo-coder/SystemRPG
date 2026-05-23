@@ -1,0 +1,151 @@
+/* Reset básico */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* Fundo da página */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #121212;
+    color: #e0e0e0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* Container principal */
+.cadastro-container {
+    background-color: #1e1e24;
+    width: 100%;
+    max-width: 420px;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.8);
+    border-top: 4px solid #2e8bc0;
+}
+
+/* Título */
+h1 {
+    text-align: center;
+    color: #ffffff;
+    margin-bottom: 25px;
+    font-size: 1.8em;
+    letter-spacing: 1px;
+}
+
+/* Formulário */
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Labels */
+label {
+    font-weight: bold;
+    color: #a1a1a1;
+    margin-bottom: 8px;
+    font-size: 0.9em;
+}
+
+/* Inputs e select */
+input[type="text"],
+input[type="password"],
+select {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 20px;
+    border: 1px solid #4e4e50;
+    border-radius: 4px;
+    background-color: #121212;
+    color: #ffffff;
+    font-size: 1em;
+    transition: border-color 0.3s;
+}
+
+/* Focus */
+input[type="text"]:focus,
+input[type="password"]:focus,
+select:focus {
+    outline: none;
+    border-color: #2e8bc0;
+}
+
+/* Estilo do select */
+select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a1a1a1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    cursor: pointer;
+}
+
+/* Botões */
+button {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 4px;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.1s;
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+/* Botão cadastrar */
+.btn-cadastrar {
+    background-color: #2e8bc0;
+    color: white;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+.btn-cadastrar:hover {
+    background-color: #1a6b9a;
+}
+
+/* Link botão voltar */
+.btn-voltar {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    text-align: center;
+    border-radius: 4px;
+    background-color: #383846;
+    color: #d3d3d3;
+    border: 1px solid #4e4e50;
+    font-size: 1em;
+    font-weight: bold;
+    text-decoration: none;
+    transition: background-color 0.3s, transform 0.1s;
+}
+
+.btn-voltar:hover {
+    background-color: #4e4e50;
+    color: white;
+}
+
+.btn-voltar:active {
+    transform: scale(0.98);
+}
+
+/* Mensagem de erro */
+.erro {
+    color: #ff4a4a;
+    background-color: #2a1a1a;
+    border: 1px solid #ff4a4a;
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    font-size: 0.9em;
+}

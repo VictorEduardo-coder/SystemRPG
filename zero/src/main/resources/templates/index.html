@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Login RPG - ZERO</title>
+    <style>
+        /* Reset básico para remover margens padrão */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Fundo escuro e centralização do conteúdo na tela */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* O "Cartão" de Login */
+        .login-container {
+            background-color: #1e1e24;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.8);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            border-top: 4px solid #2e8bc0;
+        }
+
+        h1 {
+            color: #ffffff;
+            margin-bottom: 30px;
+            font-size: 2em;
+            letter-spacing: 2px;
+        }
+
+        /* Arrumando o formulário */
+        form {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+        }
+
+        label {
+            font-weight: bold;
+            color: #a1a1a1;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+        }
+
+        /* Estilo dos campos de digitar */
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 25px;
+            border: 1px solid #4e4e50;
+            border-radius: 4px;
+            background-color: #121212;
+            color: #ffffff;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        /* Quando o jogador clica no input */
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            outline: none;
+            border-color: #2e8bc0;
+        }
+
+        /* Estilo base dos botões */
+        button {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 4px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        /* Botão Entrar */
+        .btn-entrar {
+            background-color: #2e8bc0;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .btn-entrar:hover {
+            background-color: #1a6b9a;
+        }
+
+        /* Botão Cadastrar */
+        .btn-cadastrar {
+            background-color: #383846;
+            color: #d3d3d3;
+            border: 1px solid #4e4e50;
+        }
+
+        .btn-cadastrar:hover {
+            background-color: #4e4e50;
+            color: white;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        /* Estilo para a mensagem de erro (mesmo do cadastro) */
+        .erro {
+            color: #ff4a4a;
+            background-color: #2a1a1a;
+            border: 1px solid #ff4a4a;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            text-align: left;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="login-container">
+        <h1>🎲 ZERO RPG</h1>
+
+        <div class="erro" th:if="${erro}">
+            ⚠️ <span th:text="${erro}">Erro de login</span>
+        </div>
+
+        <form th:action="@{/login}" method="post">
+            <label>Login:</label>
+            <input type="text" name="login" required placeholder="Digite o seu login...">
+
+            <label>Senha:</label>
+            <input type="password" name="senha" required placeholder="••••••••">
+
+            <button type="submit" class="btn-entrar">Entrar no Sistema</button>
+        </form>
+
+        <a th:href="@{/cadastro}">
+            <button type="button" class="btn-cadastrar">Criar Nova Conta</button>
+        </a>
+    </div>
+
+</body>
+</html>

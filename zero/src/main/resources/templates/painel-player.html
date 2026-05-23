@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O Meu Painel - ZERO RPG</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #1e1e24;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.8);
+        }
+        h1 { color: #2e8bc0; text-align: center; border-bottom: 2px solid #2e8bc0; padding-bottom: 15px; }
+        
+        /* Estilos dos Cartões */
+        .card { background-color: #2b2b36; padding: 20px; border-radius: 8px; margin-top: 20px; }
+        .card-header { border-left: 5px solid #2e8bc0; }
+        .card-danger { border-left: 5px solid #c3073f; }
+        .card-hardware { border-left: 5px solid #d4af37; }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px; }
+        .stats-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
+        
+        .stat-item { background-color: #383846; padding: 10px; border-radius: 4px; text-align: center; }
+        .stat-item small { display: block; font-size: 0.75em; color: #a1a1a1; margin-top: 4px; }
+        
+        /* Botões */
+        .btn { padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; text-decoration: none; display: inline-block; text-align: center;}
+        .btn-criar { background-color: #28a745; color: white; width: 100%; margin-top: 10px; }
+        .btn-apagar { background-color: #c3073f; color: white; }
+        .btn-hab { background-color: #d4af37; color: #121212; }
+        .btn-editar { background-color: #2e8bc0; color: white; }
+        
+        input[type="text"] { width: 95%; padding: 10px; margin-top: 10px; border-radius: 4px; border: 1px solid #4e4e50; background-color: #121212; color: white; }
+        .actions { margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap; }
+        
+        .sub-text { font-size: 0.85em; color: #888; }
+        hr { border: 0; border-top: 1px solid #383846; margin: 15px 0; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>🛡️ O Meu Aventureiro</h1>
+
+        <div th:if="${ficha == null}" class="card">
+            <h2 style="text-align: center;">Ainda não tens um personagem!</h2>
+            <p style="text-align: center;">Cria a tua ficha de nível 1 para começares a jogar.</p>
+            
+            <form action="/fichas/criar" method="post">
+                <input type="hidden" name="usuarioId" th:value="${usuarioId}">
+                <label>Nome do Personagem:</label>
+                <input type="text" name="nomePersonagem" required placeholder="Ex: Cachorro Anão...">
+                <button type="submit" class="btn btn-criar">✨ Criar Nova Ficha</button>
+            </form>
+        </div>
+
+        <div th:if="${ficha != null}">
+            
+            <div class="card card-header">
+                <h2 style="margin-top: 0; color: #2e8bc0;" th:text="${ficha.nome}">Nome do Personagem</h2>
+                <p><strong>Nível:</strong> <span th:text="${ficha.nivel}">1</span> (XP: <span th:text="${ficha.xpAtual}">0</span>/10)</p>
+                <p><strong>Idade:</strong> <span th:text="${ficha.idade}"></span> | <strong>Classe:</strong> <span th:text="${ficha.classe}"></span></p>
+                <p><strong>Título:</strong> <span th:text="${ficha.titulo}"></span> <span class="sub-text">(Concedido pelo mestre)</span></p>
+                <hr>
+                <p>
+                    <strong style="color: #28a745;">R$:</strong> <span th:text="${ficha.dinheiroReal}">0</span> | 
+                    <strong style="color: #d4af37;">G:</strong> <span th:text="${ficha.gold}">0</span> | 
+                    <strong style="color: #9b59b6;">TR:</strong> <span th:text="${ficha.tr}">0</span>
+                </p>
+            </div>
+
+            <div class="card card-danger">
+                <h3 style="margin-top: 0; color: #c3073f;">⚠️ Falha Obrigatória</h3>
+                <p><strong>Nome:</strong> <span th:text="${ficha.falhaNome}">[Nome da Falha]</span></p>
+                <p><strong>Efeito:</strong> <span th:text="${ficha.falhaEfeito}" class="sub-text">[Descrição Curta]</span></p>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-top: 0;">📊 Status Base</h3>
+                <p class="sub-text">Distribua seus 15 pontos aqui.</p>
+                <div class="stats-grid">
+                    <div class="stat-item">💪 Força: <span th:text="${ficha.forca}"></span> <small>(Dano Físico / Carga)</small></div>
+                    <div class="stat-item">❤️ Vida: <span th:text="${ficha.vida}"></span> <small>(Constituição)</small></div>
+                    <div class="stat-item">⚡ Agilidade: <span th:text="${ficha.agilidade}"></span> <small>(Velocidade / Precisão)</small></div>
+                    <div class="stat-item">💧 Mana: <span th:text="${ficha.mana}"></span> <small>(Inteligência / Magia/Vigor)</small></div>
+                    <div class="stat-item">🗣️ Carisma: <span th:text="${ficha.carisma}"></span> <small>(Influência / Aparência)</small></div>
+                    <div class="stat-item">🍀 Sorte: <span th:text="${ficha.sorte}"></span> <small>(Crítico / Loot)</small></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-top: 0;">⚙️ Estatísticas Derivadas</h3>
+                <p class="sub-text">Calculadas automaticamente.</p>
+                <div class="stats-grid">
+                    <div class="stat-item">🛡️ Defesa: <span th:text="${ficha.defesa}"></span> <small>(Vida + Força)</small></div>
+                    <div class="stat-item">🤸 Flexibilidade: <span th:text="${ficha.flexibilidade}"></span> <small>(Agilidade ÷ 2)</small></div>
+                    <div class="stat-item">🏃 Esquiva: <span th:text="${ficha.esquiva}"></span> <small>(Agilidade + Flexibilidade) / 2</small></div>
+                    <div class="stat-item">🧠 Vontade: <span th:text="${ficha.vontade}"></span> <small>(Mana + Vida) / 2</small></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-top: 0;">🎭 Perícias</h3>
+                <p class="sub-text">Habilidades sociais e de exploração.</p>
+                <div class="stats-grid-3">
+                    <div class="stat-item">Seduzir: <br><span th:text="${ficha.seduzir}">0</span></div>
+                    <div class="stat-item">Intimidar: <br><span th:text="${ficha.intimidar}">0</span></div>
+                    <div class="stat-item">Estudar: <br><span th:text="${ficha.estudar}">0</span></div>
+                    <div class="stat-item">Investigar: <br><span th:text="${ficha.investigar}">0</span></div>
+                    <div class="stat-item">Política: <br><span th:text="${ficha.politica}">0</span></div>
+                    <div class="stat-item">Religião: <br><span th:text="${ficha.religiao}">0</span></div>
+                    <div class="stat-item">Artes: <br><span th:text="${ficha.artes}">0</span></div>
+                    <div class="stat-item">Furtividade: <br><span th:text="${ficha.furtividade}">0</span></div>
+                    <div class="stat-item">Construir: <br><span th:text="${ficha.construir}">0</span></div>
+                </div>
+            </div>
+
+            <div class="card card-hardware">
+                <h3 style="margin-top: 0; color: #d4af37;">💻 Status do Hardware (Realidade)</h3>
+                <p><strong>Saldo Atual:</strong> R$ <span th:text="${ficha.saldoAtual}">[___]</span></p>
+                <p><strong>Custo de Vida Próximo:</strong> R$ <span th:text="${ficha.custoVida}">[___]</span> <span class="sub-text">(Vence em: <span th:text="${ficha.diasRestantes}">_</span> dias)</span></p>
+                <hr>
+                <p><strong>Nutrição Atual:</strong> <span th:text="${ficha.nutricao}">[Básico]</span> 
+                    <span class="sub-text"> (Jejum -50% HP | Lixo -1 CON | Básico | Atleta +5 HP)</span>
+                </p>
+                <p><strong>Conexão:</strong> <span th:text="${ficha.conexao}">[Normal]</span> 
+                    <span class="sub-text"> (Lag d6 | Normal | Pro +2 Ini)</span>
+                </p>
+            </div>
+
+                    <div class="actions">
+                    <a th:href="@{/habilidades(classeId=1, fichaId=${ficha.id}, usuarioId=${usuarioId})}" 
+                    class="btn btn-hab">
+                    📜 Ver Habilidades
+                    </a>  
+                    <a th:href="@{/fichas/editar(fichaId=${ficha.id}, usuarioId=${usuarioId})}" class="btn btn-editar">✏️ Editar Ficha</a>                <form action="/fichas/deletar" method="post" style="margin: 0;" onsubmit="return confirm('Tens a certeza absoluta que queres eliminar o teu personagem? Esta ação é irreversível!');">
+                    <input type="hidden" name="fichaId" th:value="${ficha.id}">
+                    <input type="hidden" name="usuarioId" th:value="${usuarioId}">
+                    <button type="submit" class="btn btn-apagar">☠️ Apagar Ficha</button>
+                </form>
+            </div>
+
+        </div>
+
+        <br><br>
+        
+        <div style="display: flex; justify-content: space-between; border-top: 1px solid #383846; padding-top: 15px;">
+            <a th:if="${isMestre}" th:href="@{/painel-mestre}" style="color: #888; text-decoration: none;">← Voltar ao Painel Mestre</a>
+            <a th:unless="${isMestre}" th:href="@{/index}" style="color: #888; text-decoration: none;">← Logout</a>
+            
+            <a th:href="@{/Manual(usuarioId=${usuarioId})}" style="color: #2e8bc0; text-decoration: none;">Ler Manual de Regras</a>
+    </div>
+
+</body>
+</html>

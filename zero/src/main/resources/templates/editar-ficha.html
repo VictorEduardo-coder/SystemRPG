@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Ficha - ZERO RPG</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #121212; color: #e0e0e0; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; background-color: #1e1e24; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.8); }
+        h1 { color: #2e8bc0; text-align: center; border-bottom: 2px solid #2e8bc0; padding-bottom: 10px; }
+        h3 { color: #c3073f; margin-top: 30px; border-bottom: 1px solid #383846; padding-bottom: 5px; }
+        
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #a1a1a1; font-size: 0.9em; }
+        input[type="text"], input[type="number"], select { 
+            width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #4e4e50; 
+            background-color: #121212; color: white; box-sizing: border-box; 
+        }
+        input[readonly] { background-color: #2b2b36; color: #888; cursor: not-allowed; }
+        
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+        
+        .info-box { background-color: #383846; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #d4af37; font-size: 0.9em; }
+        
+        .btn { padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; font-size: 1.1em; margin-top: 10px; }
+        .btn-salvar { background-color: #28a745; color: white; }
+        .btn-cancelar { background-color: #4e4e50; color: white; text-align: center; text-decoration: none; display: block; box-sizing: border-box;}
+        
+        /* Estilos do Botão de Habilidades e PH */
+        .btn-ver-habilidades { 
+            background-color: #2e8bc0; color: white; margin-top: 10px; display: none; 
+            border-radius: 4px; padding: 8px; cursor: pointer; border: none; width: 100%; font-weight: bold; 
+        }
+        
+        /* Modal de Habilidades */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); }
+        .modal-content { background-color: #1e1e24; margin: 10% auto; padding: 20px; border: 2px solid #2e8bc0; width: 80%; max-width: 600px; border-radius: 8px; }
+        .close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .close-btn:hover { color: #fff; }
+        .ph-destaque { color: #d4af37; font-size: 1.2em; font-weight: bold; }
+
+        .section-master { border: 2px dashed #d4af37; padding: 20px; border-radius: 8px; background-color: #2a251a; margin-top: 30px; }
+        .section-master h3 { color: #d4af37; border-bottom-color: #d4af37; margin-top: 0; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>✏️ Atualizar Ficha</h1>
+
+        <form th:action="@{/fichas/salvar}" method="post">
+            <input type="hidden" name="id" th:value="${ficha.id}">          
+            <input type="hidden" name="usuarioId" th:value="${usuarioId}">  
+            <input type="hidden" name="isMestre" th:value="${isMestre}">
+
+            <h3>👤 Identificação</h3>
+            <div class="grid-3">
+                <div class="form-group"><label>Nome do Personagem:</label><input type="text" name="nome" th:value="${ficha.nome}" required></div>
+                <div class="form-group"><label>Idade:</label><input type="number" name="idade" th:value="${ficha.idade}" required></div>
+                
+                <div class="form-group">
+                    <label>Classe:</label>
+                    <select id="input-classe" name="classe">
+                        <option value="Sem Classe" th:selected="${ficha.classe == 'Sem Classe' || ficha.classe == null}">Sem Classe</option>
+                        <option th:each="c : ${classesDisponiveis}" 
+                                th:value="${c.nome}" 
+                                th:text="${c.nome}" 
+                                th:selected="${c.nome == ficha.classe}"
+                                th:data-hibrida="${c.ehHibrida}">
+                        </option>
+                    </select>
+                    <button type="button" id="btn-habilidades" class="btn-ver-habilidades" onclick="abrirModalHabilidades()">
+                        Ver Habilidades (<span id="ph-display">0</span> PH)
+                    </button>
+                </div>
+            </div>
+            
+            <div class="grid-3">
+                <div class="form-group"><label>Nível:</label><input type="number" id="input-nivel" name="nivel" th:value="${ficha.nivel}" required></div>
+                <div class="form-group"><label>XP Atual:</label><input type="number" name="xpAtual" th:value="${ficha.xpAtual}" required></div>
+                <div class="form-group"><label>XP Próximo (Automático):</label><input type="number" id="input-xp-proximo" name="xpProximo" th:value="${ficha.xpProximo}" readonly></div>
+            </div>
+
+            <div class="form-group">
+                <label>Título (Concedido pelo Mestre):</label>
+                <input type="text" name="titulo" th:value="${ficha.titulo}" th:readonly="${isMestre != null and !isMestre}">
+            </div>
+
+            <h3>💰 Economia</h3>
+            <div class="grid-3">
+                <div class="form-group"><label>R$ (Reais):</label><input type="number" step="0.01" name="dinheiroReal" th:value="${ficha.dinheiroReal}" required></div>
+                <div class="form-group"><label>G (Gold):</label><input type="number" name="gold" th:value="${ficha.gold}" required></div>
+                <div class="form-group"><label>Tron:</label><input type="number" name="tr" th:value="${ficha.tr}" required></div>
+            </div>
+
+            <h3>⚠️ Falha Obrigatória</h3>
+            <div class="grid-2">
+                <div class="form-group"><label>Nome da Falha:</label><input type="text" name="falhaNome" th:value="${ficha.falhaNome}"></div>
+                <div class="form-group"><label>Efeito Resumido:</label><input type="text" name="falhaEfeito" th:value="${ficha.falhaEfeito}"></div>
+            </div>
+
+            <h3>📊 Status Base (Distribua 15 pontos)</h3>
+            <div class="grid-3">
+                <div class="form-group"><label>💪 Força (Dano/Carga):</label><input type="number" name="forca" th:value="${ficha.forca}"></div>
+                <div class="form-group"><label>❤️ Vida (Constituição):</label><input type="number" name="vida" th:value="${ficha.vida}"></div>
+                <div class="form-group"><label>⚡ Agilidade (Vel/Precisão):</label><input type="number" name="agilidade" th:value="${ficha.agilidade}"></div>
+                <div class="form-group"><label>💧 Mana (Int/Magia/Vigor):</label><input type="number" name="mana" th:value="${ficha.mana}"></div>
+                <div class="form-group"><label>🗣️ Carisma (Influência):</label><input type="number" name="carisma" th:value="${ficha.carisma}"></div>
+                <div class="form-group"><label>🍀 Sorte (Crítico/Loot):</label><input type="number" name="sorte" th:value="${ficha.sorte}"></div>
+            </div>
+
+            <div class="info-box">
+                <strong>⚙️ Estatísticas Derivadas (Automáticas):</strong><br>
+                Defesa: <span th:text="${ficha.defesa}"></span> | 
+                Flexibilidade: <span th:text="${ficha.flexibilidade}"></span> | 
+                Esquiva: <span th:text="${ficha.esquiva}"></span> | 
+                Vontade: <span th:text="${ficha.vontade}"></span>
+            </div>
+
+            <h3>🎭 Perícias (Sociais e Exploração)</h3>
+            <div class="grid-3">
+                <div class="form-group"><label>Seduzir:</label><input type="number" name="seduzir" th:value="${ficha.seduzir}"></div>
+                <div class="form-group"><label>Intimidar:</label><input type="number" name="intimidar" th:value="${ficha.intimidar}"></div>
+                <div class="form-group"><label>Estudar:</label><input type="number" name="estudar" th:value="${ficha.estudar}"></div>
+                <div class="form-group"><label>Investigar:</label><input type="number" name="investigar" th:value="${ficha.investigar}"></div>
+                <div class="form-group"><label>Política:</label><input type="number" name="politica" th:value="${ficha.politica}"></div>
+                <div class="form-group"><label>Religião:</label><input type="number" name="religiao" th:value="${ficha.religiao}"></div>
+                <div class="form-group"><label>Artes:</label><input type="number" name="artes" th:value="${ficha.artes}"></div>
+                <div class="form-group"><label>Furtividade:</label><input type="number" name="furtividade" th:value="${ficha.furtividade}"></div>
+                <div class="form-group"><label>Construir:</label><input type="number" name="construir" th:value="${ficha.construir}"></div>
+            </div>
+
+            <div th:if="${isMestre}" class="section-master">
+                <h3>💻 Status do Hardware (Área do Mestre)</h3>
+                <div class="grid-3">
+                    <div class="form-group"><label>Saldo Atual (R$):</label><input type="number" step="0.01" name="saldoAtual" th:value="${ficha.saldoAtual}"></div>
+                    <div class="form-group"><label>Custo de Vida Próximo (R$):</label><input type="number" step="0.01" name="custoVida" th:value="${ficha.custoVida}"></div>
+                    <div class="form-group"><label>Vence em (Dias):</label><input type="number" name="diasRestantes" th:value="${ficha.diasRestantes}"></div>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Nutrição Atual:</label>
+                        <select name="nutricao">
+                            <option value="Jejum" th:selected="${ficha.nutricao == 'Jejum'}">Jejum (-50% HP)</option>
+                            <option value="Lixo" th:selected="${ficha.nutricao == 'Lixo'}">Lixo (-1 CON)</option>
+                            <option value="Básico" th:selected="${ficha.nutricao == 'Básico' or ficha.nutricao == 'BASICO'}">Básico</option>
+                            <option value="Atleta" th:selected="${ficha.nutricao == 'Atleta'}">Atleta (+5 HP)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Conexão:</label>
+                        <select name="conexao">
+                            <option value="Lag" th:selected="${ficha.conexao == 'Lag'}">Lag (d6)</option>
+                            <option value="Normal" th:selected="${ficha.conexao == 'Normal' or ficha.conexao == 'NORMAL'}">Normal</option>
+                            <option value="Pro" th:selected="${ficha.conexao == 'Pro'}">Pro (+2 Ini)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <br>
+            <button type="submit" class="btn btn-salvar">💾 Guardar Alterações</button>
+            <a th:if="${isMestre}" th:href="@{/painel-mestre}" class="btn btn-cancelar">Cancelar e Voltar ao Mestre</a>
+            <a th:unless="${isMestre}" th:href="@{/painel-player(usuarioId=${usuarioId})}" class="btn btn-cancelar">Cancelar</a>
+        </form>
+    </div>
+
+    <div id="modalHabilidades" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="fecharModal()">&times;</span>
+            <h2 style="color: #2e8bc0;">Habilidades da Classe: <span id="modal-classe-nome">Nenhuma</span></h2>
+            <p>Você tem <span class="ph-destaque" id="modal-ph-qtd">0</span> Pontos de Habilidade (PH) disponíveis.</p>
+            
+            <div style="background-color: #2b2b36; padding: 15px; border-radius: 5px; margin-top: 15px;">
+                <p style="color: #a1a1a1; font-size: 0.9em; text-align: center;">
+                    <em>(Aqui, futuramente, será carregada a árvore de habilidades específica desta classe vinda do banco de dados).</em>
+                </p>
+                <div style="text-align: center; margin-top: 10px;">
+                    <a id="link-ir-habilidades" href="#" style="color: #c3073f; font-weight: bold; text-decoration: underline;">
+                        Ir para a Árvore de Habilidades Completa →
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function calcularValores() {
+            const classeSelect = document.getElementById('input-classe');
+            const nivelInput = parseInt(document.getElementById('input-nivel').value) || 1;
+            const btnHabilidades = document.getElementById('btn-habilidades');
+            
+            // 1. Calcula o XP Próximo
+            const selectedOption = classeSelect.options[classeSelect.selectedIndex];
+            const isHibrida = selectedOption ? selectedOption.getAttribute('data-hibrida') === 'true' : false;
+            const multiplicador = isHibrida ? 15 : 10;
+            
+            const xpProximo = nivelInput * multiplicador;
+            document.getElementById('input-xp-proximo').value = xpProximo;
+            
+            // 2. Calcula os Pontos de Habilidade (PH) e mostra/esconde o botão
+            const nomeClasse = classeSelect.value;
+            if (nomeClasse && nomeClasse !== "Sem Classe") {
+                btnHabilidades.style.display = 'block';
+                
+                // Exemplo de regra para PH: Ganha 2 pontos no Nível 1, e +1 ponto a cada nível depois. 
+                // Você pode mudar essa matemática para o que quiser.
+                let phDisponiveis = 1 + nivelInput; 
+                document.getElementById('ph-display').innerText = phDisponiveis;
+                
+            } else {
+                btnHabilidades.style.display = 'none';
+            }
+        }
+
+        // Lógica do Modal
+        function abrirModalHabilidades() {
+            const classeSelect = document.getElementById('input-classe');
+            const nomeClasse = classeSelect.value;
+            const phQtd = document.getElementById('ph-display').innerText;
+            
+            document.getElementById('modal-classe-nome').innerText = nomeClasse;
+            document.getElementById('modal-ph-qtd').innerText = phQtd;
+            
+            // Tenta pegar o usuarioId e fichaId (usando o id da ficha salvo no formulário)
+            const usuarioId = document.querySelector('input[name="usuarioId"]').value;
+            const fichaId = document.querySelector('input[name="id"]').value;
+            
+            // Monta o link para a página de Habilidades (o Compêndio)
+            const linkCompendio = `/habilidades?usuarioId=${usuarioId}&fichaId=${fichaId}`;
+            document.getElementById('link-ir-habilidades').href = linkCompendio;
+
+            document.getElementById('modalHabilidades').style.display = 'block';
+        }
+
+        function fecharModal() {
+            document.getElementById('modalHabilidades').style.display = 'none';
+        }
+
+        // Fecha o modal se o usuário clicar fora dele
+        window.onclick = function(event) {
+            const modal = document.getElementById('modalHabilidades');
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        // Eventos
+        document.getElementById('input-classe').addEventListener('change', calcularValores);
+        document.getElementById('input-nivel').addEventListener('input', calcularValores);
+        
+        // Roda no carregamento inicial
+        window.onload = calcularValores;
+    </script>
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel do Mestre - ZERO RPG</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: #1e1e24;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.8);
+        }
+        h1 {
+            color: #d4af37; /* Dourado Mestre */
+            text-align: center;
+            border-bottom: 2px solid #d4af37;
+            padding-bottom: 15px;
+            margin-top: 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: #2b2b36;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #3f3f4e;
+        }
+        th {
+            background-color: #d4af37;
+            color: #121212;
+            font-weight: bold;
+        }
+        tr:hover {
+            background-color: #383846;
+        }
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-ver { background-color: #28a745; color: white; } 
+        .btn-editar { background-color: #2e8bc0; color: white; }
+        .btn-apagar { background-color: #c3073f; color: white; }
+        
+        .header-actions {
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        
+        /* Ajuste no menu para os botões não ficarem amontoados */
+        .menu-navegacao {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>👑 Painel do Mestre</h1>
+
+        <div class="header-actions">
+            <div class="menu-navegacao">
+                    <a th:href="@{/Manual(usuarioId=${usuarioId})}" class="btn" style="background-color: #2e8bc0; color: white;">
+                        📖 Manual de Regras
+                    </a>
+
+                <a th:href="@{/painel-mestre/habilidades(usuarioId=${usuarioId})}" 
+                   class="btn" style="background-color: #d4af37; color: black;">
+                    ✨ Habilidades
+                </a>
+
+              <a th:href="@{/painel-mestre/npcs(usuarioId=${usuarioLogadoId})}" 
+                   class="btn" style="background-color: #7b8a8b; color: white;">
+                    🗣️ Ver NPCs
+                </a>
+
+                <a th:href="@{/painel-mestre/monstros(usuarioId=${usuarioLogadoId})}" 
+                   class="btn" style="background-color: #8e44ad; color: white;">
+                    👹 Ver Monstros
+                </a>
+
+                <a th:href="@{/painel-mestre/boss(usuarioId=${usuarioLogadoId})}" 
+                   class="btn" style="background-color: #c3073f; color: white;">
+                    💀 Ver Bosses
+                </a>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Classe</th>
+                    <th>Nível</th>
+                    <th>Vida</th>
+                    <th>Mana</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="ficha : ${fichas}">
+                    <td th:text="${ficha.id}">1</td>
+                    <td th:text="${ficha.nome}" style="font-weight: bold; color: #fff;">Nome Herói</td>
+                    <td th:text="${ficha.classe}">Guerreiro</td>
+                    <td th:text="${ficha.nivel}">1</td>
+                    <td style="color: #ff4c4c;">❤️ <span th:text="${ficha.vida}">0</span></td>
+                    <td style="color: #4c9aff;">💧 <span th:text="${ficha.mana}">0</span></td>
+                    <td>
+                        <a th:href="@{/painel-player(usuarioId=${ficha.usuarioId}, mestreVisualizando=true)}" class="btn btn-ver">👁️ Ver</a>
+                        
+                        <a th:href="@{/fichas/editar(fichaId=${ficha.id}, usuarioId=${usuarioId})}" class="btn btn-editar">✏️ Editar</a>
+                        <a href="#" class="btn btn-apagar">🗑️ Apagar</a>
+                    </td>
+                </tr>
+                
+                <tr th:if="${#lists.isEmpty(fichas)}">
+                    <td colspan="7" style="text-align: center; padding: 20px;">Nenhuma ficha encontrada no sistema.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <br>
+        <a href="/index" style="color: #888; text-decoration: none;">← Sair do Painel</a>
+    </div>
+
+</body>
+</html>
