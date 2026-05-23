@@ -1,49 +1,32 @@
 <!DOCTYPE html>
 <html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>O Meu Painel - ZERO RPG</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #121212;
-            color: #e0e0e0;
-            margin: 0;
-            padding: 20px;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background-color: #1e1e24;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.8);
-        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #121212; color: #e0e0e0; margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; background-color: #1e1e24; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.8); }
         h1 { color: #2e8bc0; text-align: center; border-bottom: 2px solid #2e8bc0; padding-bottom: 15px; }
-        
-        /* Estilos dos Cartões */
         .card { background-color: #2b2b36; padding: 20px; border-radius: 8px; margin-top: 20px; }
         .card-header { border-left: 5px solid #2e8bc0; }
         .card-danger { border-left: 5px solid #c3073f; }
         .card-hardware { border-left: 5px solid #d4af37; }
-        
         .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px; }
         .stats-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
-        
         .stat-item { background-color: #383846; padding: 10px; border-radius: 4px; text-align: center; }
         .stat-item small { display: block; font-size: 0.75em; color: #a1a1a1; margin-top: 4px; }
-        
-        /* Botões */
         .btn { padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; text-decoration: none; display: inline-block; text-align: center;}
         .btn-criar { background-color: #28a745; color: white; width: 100%; margin-top: 10px; }
         .btn-apagar { background-color: #c3073f; color: white; }
         .btn-hab { background-color: #d4af37; color: #121212; }
         .btn-editar { background-color: #2e8bc0; color: white; }
-        
+        .btn-rolar { background-color: #9b59b6; color: white; white-space: nowrap; }
         input[type="text"] { width: 95%; padding: 10px; margin-top: 10px; border-radius: 4px; border: 1px solid #4e4e50; background-color: #121212; color: white; }
         .actions { margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap; }
-        
+        .dice-roller { display: flex; gap: 10px; margin-top: 10px; align-items: center; }
+        .dice-roller input { flex-grow: 1; width: auto; margin-top: 0; }
+        .resultado-dado { margin-top: 15px; font-size: 1.1em; font-weight: bold; color: #2e8bc0; text-align: center; min-height: 25px; }
         .sub-text { font-size: 0.85em; color: #888; }
         hr { border: 0; border-top: 1px solid #383846; margin: 15px 0; }
     </style>
@@ -58,9 +41,9 @@
             <p style="text-align: center;">Cria a tua ficha de nível 1 para começares a jogar.</p>
             
             <form action="/fichas/criar" method="post">
-                <input type="hidden" name="usuarioId" th:value="${usuarioId}">
+                <input type="hidden" name="usuarioId" th:value="${usuarioId}" />
                 <label>Nome do Personagem:</label>
-                <input type="text" name="nomePersonagem" required placeholder="Ex: Cachorro Anão...">
+                <input type="text" name="nomePersonagem" required="required" placeholder="Ex: Cachorro Anão..." />
                 <button type="submit" class="btn btn-criar">✨ Criar Nova Ficha</button>
             </form>
         </div>
@@ -72,7 +55,7 @@
                 <p><strong>Nível:</strong> <span th:text="${ficha.nivel}">1</span> (XP: <span th:text="${ficha.xpAtual}">0</span>/10)</p>
                 <p><strong>Idade:</strong> <span th:text="${ficha.idade}"></span> | <strong>Classe:</strong> <span th:text="${ficha.classe}"></span></p>
                 <p><strong>Título:</strong> <span th:text="${ficha.titulo}"></span> <span class="sub-text">(Concedido pelo mestre)</span></p>
-                <hr>
+                <hr />
                 <p>
                     <strong style="color: #28a745;">R$:</strong> <span th:text="${ficha.dinheiroReal}">0</span> | 
                     <strong style="color: #d4af37;">G:</strong> <span th:text="${ficha.gold}">0</span> | 
@@ -114,15 +97,15 @@
                 <h3 style="margin-top: 0;">🎭 Perícias</h3>
                 <p class="sub-text">Habilidades sociais e de exploração.</p>
                 <div class="stats-grid-3">
-                    <div class="stat-item">Seduzir: <br><span th:text="${ficha.seduzir}">0</span></div>
-                    <div class="stat-item">Intimidar: <br><span th:text="${ficha.intimidar}">0</span></div>
-                    <div class="stat-item">Estudar: <br><span th:text="${ficha.estudar}">0</span></div>
-                    <div class="stat-item">Investigar: <br><span th:text="${ficha.investigar}">0</span></div>
-                    <div class="stat-item">Política: <br><span th:text="${ficha.politica}">0</span></div>
-                    <div class="stat-item">Religião: <br><span th:text="${ficha.religiao}">0</span></div>
-                    <div class="stat-item">Artes: <br><span th:text="${ficha.artes}">0</span></div>
-                    <div class="stat-item">Furtividade: <br><span th:text="${ficha.furtividade}">0</span></div>
-                    <div class="stat-item">Construir: <br><span th:text="${ficha.construir}">0</span></div>
+                    <div class="stat-item">Seduzir: <br/><span th:text="${ficha.seduzir}">0</span></div>
+                    <div class="stat-item">Intimidar: <br/><span th:text="${ficha.intimidar}">0</span></div>
+                    <div class="stat-item">Estudar: <br/><span th:text="${ficha.estudar}">0</span></div>
+                    <div class="stat-item">Investigar: <br/><span th:text="${ficha.investigar}">0</span></div>
+                    <div class="stat-item">Política: <br/><span th:text="${ficha.politica}">0</span></div>
+                    <div class="stat-item">Religião: <br/><span th:text="${ficha.religiao}">0</span></div>
+                    <div class="stat-item">Artes: <br/><span th:text="${ficha.artes}">0</span></div>
+                    <div class="stat-item">Furtividade: <br/><span th:text="${ficha.furtividade}">0</span></div>
+                    <div class="stat-item">Construir: <br/><span th:text="${ficha.construir}">0</span></div>
                 </div>
             </div>
 
@@ -130,7 +113,7 @@
                 <h3 style="margin-top: 0; color: #d4af37;">💻 Status do Hardware (Realidade)</h3>
                 <p><strong>Saldo Atual:</strong> R$ <span th:text="${ficha.saldoAtual}">[___]</span></p>
                 <p><strong>Custo de Vida Próximo:</strong> R$ <span th:text="${ficha.custoVida}">[___]</span> <span class="sub-text">(Vence em: <span th:text="${ficha.diasRestantes}">_</span> dias)</span></p>
-                <hr>
+                <hr />
                 <p><strong>Nutrição Atual:</strong> <span th:text="${ficha.nutricao}">[Básico]</span> 
                     <span class="sub-text"> (Jejum -50% HP | Lixo -1 CON | Básico | Atleta +5 HP)</span>
                 </p>
@@ -139,28 +122,86 @@
                 </p>
             </div>
 
-                    <div class="actions">
-                    <a th:href="@{/habilidades(classeId=1, fichaId=${ficha.id}, usuarioId=${usuarioId})}" 
-                    class="btn btn-hab">
-                    📜 Ver Habilidades
-                    </a>  
-                    <a th:href="@{/fichas/editar(fichaId=${ficha.id}, usuarioId=${usuarioId})}" class="btn btn-editar">✏️ Editar Ficha</a>                <form action="/fichas/deletar" method="post" style="margin: 0;" onsubmit="return confirm('Tens a certeza absoluta que queres eliminar o teu personagem? Esta ação é irreversível!');">
-                    <input type="hidden" name="fichaId" th:value="${ficha.id}">
-                    <input type="hidden" name="usuarioId" th:value="${usuarioId}">
+            <div class="card">
+                <h3 style="margin-top: 0; color: #9b59b6;">🎲 Rolar Dados</h3>
+                <p class="sub-text">Ex: 1d20 + 5, 2d6 - 1</p>
+                <div class="dice-roller">
+                    <input type="text" id="inputDado" placeholder="1d20 + 2d5 + 5" autocomplete="off" />
+                    <button type="button" class="btn btn-rolar" th:data-nome="${ficha.nome}" onclick="rolarDado(this.getAttribute('data-nome'))">Rolar 🎲</button>
+                </div>
+                <div id="resultadoDado" class="resultado-dado"></div>
+            </div>
+
+            <div class="actions">
+                <a th:href="@{/habilidades(classeId=1, fichaId=${ficha.id}, usuarioId=${usuarioId})}" class="btn btn-hab">
+                📜 Ver Habilidades
+                </a>  
+                <a th:href="@{/fichas/editar(fichaId=${ficha.id}, usuarioId=${usuarioId})}" class="btn btn-editar">✏️ Editar Ficha</a>                
+                <form action="/fichas/deletar" method="post" style="margin: 0;" onsubmit="return confirm('Tens a certeza absoluta que queres eliminar o teu personagem? Esta ação é irreversível!');">
+                    <input type="hidden" name="fichaId" th:value="${ficha.id}" />
+                    <input type="hidden" name="usuarioId" th:value="${usuarioId}" />
                     <button type="submit" class="btn btn-apagar">☠️ Apagar Ficha</button>
                 </form>
             </div>
 
         </div>
 
-        <br><br>
+        <br/><br/>
         
         <div style="display: flex; justify-content: space-between; border-top: 1px solid #383846; padding-top: 15px;">
             <a th:if="${isMestre}" th:href="@{/painel-mestre}" style="color: #888; text-decoration: none;">← Voltar ao Painel Mestre</a>
             <a th:unless="${isMestre}" th:href="@{/index}" style="color: #888; text-decoration: none;">← Logout</a>
             
             <a th:href="@{/Manual(usuarioId=${usuarioId})}" style="color: #2e8bc0; text-decoration: none;">Ler Manual de Regras</a>
+        </div>
     </div>
 
+    <script>
+        async function rolarDado(nomeJogador) {
+            const expressaoInput = document.getElementById('inputDado');
+            const expressao = expressaoInput.value;
+            const resultadoDiv = document.getElementById('resultadoDado');
+
+            if (!expressao.trim()) {
+                resultadoDiv.style.color = '#c3073f';
+                resultadoDiv.innerText = "⚠️ Digite um valor primeiro!";
+                expressaoInput.focus();
+                return;
+            }
+
+            resultadoDiv.style.color = '#e0e0e0';
+            resultadoDiv.innerText = "Rolando 🎲...";
+
+            try {
+                const response = await fetch('/api/dados/rolar', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ expressao: expressao, nomeJogador: nomeJogador })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    resultadoDiv.style.color = '#2e8bc0';
+                    resultadoDiv.innerText = `Resultado: ${data.detalhes}`;
+                } else {
+                    resultadoDiv.style.color = '#c3073f';
+                    resultadoDiv.innerText = "❌ Erro ao rolar o dado.";
+                }
+            } catch (error) {
+                console.error("Erro na comunicação com o servidor:", error);
+                resultadoDiv.style.color = '#c3073f';
+                resultadoDiv.innerText = "❌ Falha na conexão com o servidor.";
+            }
+        }
+
+        document.getElementById("inputDado")?.addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                document.querySelector('.btn-rolar').click();
+            }
+        });
+    </script>
 </body>
 </html>
