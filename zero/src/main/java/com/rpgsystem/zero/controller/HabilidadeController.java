@@ -19,7 +19,7 @@ import com.rpgsystem.zero.repository.UsuarioDAO;
 @Controller
 public class HabilidadeController {
 
-  @GetMapping("/habilidades")
+    @GetMapping("/habilidades")
     public String verHabilidades(
             @RequestParam(defaultValue = "1") int classeId,
             @RequestParam(defaultValue = "1") int fichaId,
@@ -43,8 +43,9 @@ public class HabilidadeController {
         List<Habilidade> todasAsHabilidades = HabilidadeDAO.listarTodasAsHabilidades(fichaIdReal);
         Classe classeAtual = ClasseDAO.buscarClassePorId(classeId);
         
-        // NOVO: Enviando a lista de Tiers direto do Java para não quebrar o HTML
-        List<String> tiers = java.util.Arrays.asList("PASSIVA", "ATIVO_1", "ATIVO_2", "ATIVO_3", "SUPREMO");
+        // NOVO/ATUALIZADO: Enviando a lista de Tiers direto do Java para não quebrar o HTML
+        // Reflete exatamente os valores aceitos pelo CHECK constraint da tabela no banco
+        List<String> tiers = java.util.Arrays.asList("PASSIVA", "TIER 1", "TIER 2", "TIER 3");
         model.addAttribute("tiers", tiers);
 
         model.addAttribute("todasAsClasses", todasAsClasses);
@@ -92,7 +93,8 @@ public class HabilidadeController {
             @RequestParam Integer usuarioId,
             @RequestParam(defaultValue = "1") int classeId) { 
             
-         HabilidadeDAO.salvarHabilidade(nome, descricao, tier, classeId);
+        // Agora o parâmetro "tier" recebido do formulário HTML será enviado exatamente como "TIER 1", "TIER 2", etc.
+        HabilidadeDAO.salvarHabilidade(nome, descricao, tier, classeId);
         
         return "redirect:/habilidades?classeId=" + classeId + "&usuarioId=" + usuarioId;
     }
