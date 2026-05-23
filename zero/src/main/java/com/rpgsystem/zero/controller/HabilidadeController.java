@@ -45,7 +45,7 @@ public class HabilidadeController {
         
         // NOVO/ATUALIZADO: Enviando a lista de Tiers direto do Java para não quebrar o HTML
         // Reflete exatamente os valores aceitos pelo CHECK constraint da tabela no banco
-        List<String> tiers = java.util.Arrays.asList("PASSIVA", "TIER 1", "TIER 2", "TIER 3", "ULTIMATE");
+        List<String> tiers = java.util.Arrays.asList("PASSIVA", "TIER 1", "TIER 2", "TIER 3", "SUPREMO");
         model.addAttribute("tiers", tiers);
 
         model.addAttribute("todasAsClasses", todasAsClasses);
