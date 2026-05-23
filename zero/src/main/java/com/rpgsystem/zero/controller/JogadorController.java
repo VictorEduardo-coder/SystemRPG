@@ -1,6 +1,6 @@
 package com.rpgsystem.zero.controller;
 
-import java.util.List; // Adicionado
+import java.util.List;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.rpgsystem.zero.model.Classe;
-import com.rpgsystem.zero.model.Ficha; // Adicionado
+import com.rpgsystem.zero.model.Ficha;
 import com.rpgsystem.zero.repository.ClasseDAO;
-import com.rpgsystem.zero.repository.FichaDAO; // Adicionado
+import com.rpgsystem.zero.repository.FichaDAO;
 
 @Controller
 public class JogadorController {
@@ -96,5 +96,22 @@ public class JogadorController {
         
         // Redireciona de volta para o painel (que agora aparecerá vazio)
         return "redirect:/painel-player?usuarioId=" + usuarioId;
+    }
+    
+    // ==================================================
+    // ABRIR O INVENTÁRIO DO JOGADOR
+    // ==================================================
+    @GetMapping("/inventario")
+    public String abrirInventario(
+            @RequestParam(value = "fichaId") Integer fichaId, 
+            @RequestParam(value = "usuarioId") Integer usuarioId, 
+            Model model) {
+        
+        // Passamos os IDs para o HTML, assim podemos fazer um botão de "Voltar" funcional na tela de inventário
+        model.addAttribute("fichaId", fichaId);
+        model.addAttribute("usuarioId", usuarioId);
+        
+        // Retorna a view "inventario.html" que está na sua pasta de templates
+        return "inventario";
     }
 }
