@@ -11,9 +11,9 @@ Este projeto nasceu da necessidade de automatizar as lógicas complexas de _worl
 
 ## ✨ Principais Funcionalidades e Regras de Negócio
 
-* **Gerenciamento de Personagens:** Cadastro, atualização de status e controle de progressão contínua do Yuusha.
+* **Gerenciamento de Personagens:** Cadastro, atualização de status e controle de progressão contínua.
 * **Sistema Dinâmico de Corrupção:** Implementação de uma mecânica de acúmulo e recuperação de corrupção. A lógica backend processa algoritmos de alívio baseados em eventos específicos e rotineiros, abatendo níveis de corrupção quando o sistema registra gatilhos como situações de carinho, a conclusão de trabalhos no dia ou a evolução de nível do personagem.
-* **Motor Econômico:** Gestão completa do fluxo financeiro do jogo. O sistema valida transações comerciais, armazenamento de riquezas e conversões utilizando exclusivamente o Tron, a moeda oficial do cenário, impedindo saldos negativos e fraudes no inventário.
+* **Motor Econômico:** Gestão completa do fluxo financeiro do jogo. O sistema valida transações comerciais, armazenamento de riquezas e conversões utilizando exclusivamente o Tron ou Gold, as moedas oficiais do cenário, impedindo saldos negativos e fraudes no inventário.
 * **Controle de Inventário e Itens:** Relacionamento de tabelas para associar equipamentos e consumíveis a personagens específicos.
 
 ## 🛠️ Tecnologias Utilizadas
