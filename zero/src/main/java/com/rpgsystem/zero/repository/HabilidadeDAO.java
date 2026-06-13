@@ -143,8 +143,8 @@ public class HabilidadeDAO {
         return habilidades;
     }
 
-    public static void salvarHabilidade(String nome, String descricao, String tier, int classeId) {
-        String sql = "INSERT INTO habilidades (nome, descricao, tier, classe_id) VALUES (?, ?, ?, ?)";
+    public static void salvarHabilidade(String nome, String descricao, String tier, String dano, int custoMana, int classeId) {
+        String sql = "INSERT INTO habilidades (nome, descricao, tier, dano, custo_mana, classe_id) VALUES (?, ?, ?, ?, ?, ?)";
         
         try (Connection conn = ConexaoDB.conectar();
              PreparedStatement stmt = conn.prepareStatement(sql)) {

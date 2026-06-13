@@ -85,17 +85,17 @@ public class HabilidadeController {
     // ==================================================
     // SALVAR NOVA HABILIDADE
     // ==================================================
-    @PostMapping("/habilidades/salvar")
-    public String salvarHabilidade(
-            @RequestParam String nome,
-            @RequestParam String tier,
-            @RequestParam String descricao,
-            @RequestParam Integer usuarioId,
-            @RequestParam(defaultValue = "1") int classeId) { 
-            
-        // Agora o parâmetro "tier" recebido do formulário HTML será enviado exatamente como "TIER 1", "TIER 2", etc.
-        HabilidadeDAO.salvarHabilidade(nome, descricao, tier, classeId);
+   @PostMapping("/habilidades/salvar")
+public String salvarHabilidade(
+        @RequestParam String nome,
+        @RequestParam String tier,
+        @RequestParam String descricao,
+        @RequestParam String dano,
+        @RequestParam int custoMana,
+        @RequestParam Integer usuarioId,
+        @RequestParam(defaultValue = "1") int classeId) { 
         
-        return "redirect:/habilidades?classeId=" + classeId + "&usuarioId=" + usuarioId;
-    }
+    HabilidadeDAO.salvarHabilidade(nome, descricao, tier, dano, custoMana, classeId);
+    return "redirect:/habilidades?classeId=" + classeId + "&usuarioId=" + usuarioId;
+}
 }

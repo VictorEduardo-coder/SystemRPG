@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mochila do Herói</title>
+    <style>
+        /* Tema Fantasia/RPG Escuro */
+        body {
+            background-color: #1a1a1a;
+            color: #d4d4d4;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #2a2a2a;
+            border: 3px solid #b8860b;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 0 15px rgba(184, 134, 11, 0.3);
+        }
+
+        h1, h3 {
+            text-align: center;
+            color: #daa520;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        h1 {
+            border-bottom: 1px solid #444;
+            padding-bottom: 10px;
+        }
+
+        /* Estilos do Formulário de Adição */
+        .form-loot {
+            background-color: #1e1e1e;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #444;
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: space-between;
+        }
+
+        .form-loot input, .form-loot select,
+        .edit-input, .edit-select { /* Adicionado para os inputs da tabela */
+            background-color: #2a2a2a;
+            color: white;
+            border: 1px solid #555;
+            padding: 8px;
+            border-radius: 4px;
+            font-family: inherit;
+        }
+
+        .form-loot input[type="text"] { flex-grow: 1; min-width: 200px; }
+        .form-loot input[type="number"] { width: 70px; }
+
+        .btn-adicionar {
+            background-color: #b8860b;
+            color: #1a1a1a;
+            border: none;
+            padding: 8px 15px;
+            cursor: pointer;
+            border-radius: 3px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .btn-adicionar:hover { background-color: #daa520; }
+
+        /* Estilos da Tabela */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #444;
+        }
+
+        th {
+            background-color: #333;
+            color: #daa520;
+        }
+        
+        /* Ajuste de inputs dentro da tabela */
+        td .edit-input { width: 60px; padding: 4px; }
+        td .edit-input-nome { width: 90%; padding: 4px; }
+        td .edit-select { padding: 4px; }
+
+        /* Sistema de Cores por Raridade */
+        .raridade-comum { color: #ffffff; }
+        .raridade-raro { color: #0070dd; font-weight: bold; }
+        .raridade-epico { color: #a335ee; font-weight: bold; }
+        .raridade-lendario { color: #ff8000; font-weight: bold; text-shadow: 0 0 5px #ff8000; }
+
+        /* Botões de Ação na Tabela */
+        .btn-usar {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        .btn-usar:hover { background-color: #45a049; }
+        
+        .btn-editar-item {
+            background-color: #2e8bc0;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 3px;
+            margin-left: 5px;
+        }
+        .btn-editar-item:hover { background-color: #1a6a9c; }
+
+        .btn-apagar-item {
+            background-color: #c3073f;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 3px;
+            margin-left: 5px;
+        }
+        .btn-apagar-item:hover { background-color: #a00532; }
+        
+        .btn-salvar-item {
+            background-color: #b8860b;
+            color: #1a1a1a;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 3px;
+            margin-left: 5px;
+            font-weight: bold;
+        }
+
+        /* Botão Voltar */
+        .btn-voltar {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 15px;
+            background-color: #444;
+            color: #d4d4d4;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .btn-voltar:hover { background-color: #555; }
+        
+        .footer-actions {
+            display: flex;
+            justify-content: flex-start;
+            border-top: 1px solid #444;
+            margin-top: 20px;
+            padding-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Inventário</h1>
+    
+    <div class="form-loot">
+        <input type="text" id="nomeItem" placeholder="Nome do Item" required>
+        
+        <select id="tipoItem">
+            <option value="Arma">Arma</option>
+            <option value="Armadura">Armadura</option>
+            <option value="Consumível">Consumível</option>
+            <option value="Acessório">Acessório</option>
+        </select>
+
+        <select id="raridadeItem">
+            <option value="Comum">Comum</option>
+            <option value="Raro">Raro</option>
+            <option value="Épico">Épico</option>
+            <option value="Lendário">Lendário</option>
+        </select>
+
+        <input type="number" id="qtdItem" placeholder="Qtd" min="1" value="1" required>
+        <input type="number" id="poderItem" placeholder="Poder" value="0" required>
+        
+        <button class="btn-adicionar" onclick="adicionarItem()">Guardar Loot</button>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Tipo</th>
+                <th>Qtd</th>
+                <th>Poder</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody id="lista-itens">
+            </tbody>
+    </table>
+    
+    <div class="footer-actions">
+        <a th:href="@{/painel-player(usuarioId=${usuarioId})}" class="btn-voltar">← Voltar para a Ficha</a>
+    </div>
+
+</div>
+
+<script>
+    // 1. Função para buscar os itens da API e preencher a tabela
+    async function carregarInventario() {
+        const tbody = document.getElementById('lista-itens');
+        tbody.innerHTML = '<tr><td colspan="5">Procurando na mochila...</td></tr>';
+
+        try {
+            const resposta = await fetch('/api/inventario');
+            const itens = await resposta.json();
+
+            tbody.innerHTML = ''; 
+
+            if (itens.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5">Sua mochila está vazia.</td></tr>';
+                return;
+            }
+
+            itens.forEach(item => {
+                let classeRaridade = 'raridade-' + item.raridade.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+                const tr = document.createElement('tr');
+                tr.setAttribute('data-id', item.id); // Guardamos o ID na linha
+                
+                // Os data-atributos guardam o valor original para o modo de edição
+                tr.innerHTML = `
+                    <td class="${classeRaridade}" data-nome="${item.nome}">${item.nome}</td>
+                    <td data-tipo="${item.tipo}">${item.tipo}</td>
+                    <td data-qtd="${item.quantidade}">${item.quantidade}</td>
+                    <td data-poder="${item.poder}">+${item.poder}</td>
+                    <td>
+                        <button class="btn-usar" onclick="usarItem(${item.id})">Usar</button>
+                        <button class="btn-editar-item" title="Editar" onclick="editarItem(${item.id}, this)">✏️</button>
+                        <button class="btn-apagar-item" title="Jogar fora" onclick="apagarItem(${item.id})">🗑️</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } catch (erro) {
+            console.error("Erro ao carregar inventário:", erro);
+            tbody.innerHTML = '<tr><td colspan="5" style="color:red;">Erro ao abrir a mochila!</td></tr>';
+        }
+    }
+
+    // 2. Função para ler o formulário e enviar para a API (Adicionar)
+    async function adicionarItem() {
+        const novoItem = {
+            nome: document.getElementById('nomeItem').value,
+            tipo: document.getElementById('tipoItem').value,
+            raridade: document.getElementById('raridadeItem').value,
+            quantidade: parseInt(document.getElementById('qtdItem').value),
+            poder: parseInt(document.getElementById('poderItem').value)
+        };
+
+        if (!novoItem.nome) {
+            alert("O item precisa de um nome!");
+            return;
+        }
+
+        try {
+            const resposta = await fetch('/api/inventario/adicionar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(novoItem)
+            });
+
+            if (resposta.ok) {
+                document.getElementById('nomeItem').value = '';
+                carregarInventario(); 
+            } else {
+                alert("Erro ao guardar o item na mochila.");
+            }
+        } catch (erro) {
+            console.error("Erro ao adicionar:", erro);
+        }
+    }
+    
+    // 3. Função para transformar a linha em modo de edição
+    function editarItem(id, btn) {
+        const tr = btn.closest('tr');
+        
+        // Pega as células
+        const tdNome = tr.cells[0];
+        const tdTipo = tr.cells[1];
+        const tdQtd = tr.cells[2];
+        const tdPoder = tr.cells[3];
+        const tdAcoes = tr.cells[4];
+        
+        // Pega os valores atuais (guardados nos data-atributos)
+        const nomeAtual = tdNome.getAttribute('data-nome');
+        const tipoAtual = tdTipo.getAttribute('data-tipo');
+        const qtdAtual = tdQtd.getAttribute('data-qtd');
+        const poderAtual = tdPoder.getAttribute('data-poder');
+        
+        // Transforma o conteúdo em inputs para edição
+        tdNome.innerHTML = `<input type="text" class="edit-input-nome" value="${nomeAtual}">`;
+        
+        tdTipo.innerHTML = `
+            <select class="edit-select">
+                <option value="Arma" ${tipoAtual === 'Arma' ? 'selected' : ''}>Arma</option>
+                <option value="Armadura" ${tipoAtual === 'Armadura' ? 'selected' : ''}>Armadura</option>
+                <option value="Consumível" ${tipoAtual === 'Consumível' ? 'selected' : ''}>Consumível</option>
+                <option value="Acessório" ${tipoAtual === 'Acessório' ? 'selected' : ''}>Acessório</option>
+            </select>
+        `;
+        
+        tdQtd.innerHTML = `<input type="number" class="edit-input" value="${qtdAtual}" min="1">`;
+        tdPoder.innerHTML = `<input type="number" class="edit-input" value="${poderAtual}">`;
+        
+        // Muda o botão para "Salvar" e desabilita "Usar" e "Deletar" temporariamente
+        tdAcoes.innerHTML = `
+            <button class="btn-salvar-item" onclick="salvarEdicao(${id}, this)">💾 Salvar</button>
+            <button class="btn-apagar-item" onclick="carregarInventario()">❌</button>
+        `;
+    }
+
+    // 4. Função para enviar a edição (Atualizar)
+    async function salvarEdicao(id, btn) {
+        const tr = btn.closest('tr');
+        
+        // Pega os novos valores dos inputs
+        const nomeEditado = tr.cells[0].querySelector('input').value;
+        const tipoEditado = tr.cells[1].querySelector('select').value;
+        const qtdEditada = parseInt(tr.cells[2].querySelector('input').value);
+        const poderEditado = parseInt(tr.cells[3].querySelector('input').value);
+        
+        // Precisamos manter a raridade original, pois não colocamos ela no modo de edição (se quiser, pode adicionar)
+        // Como o backend exige um objeto completo, vamos simular a raridade pela classe CSS ou você pode adicioná-la aos inputs
+        // Para simplificar, vou buscar a raridade extraindo o texto da classe (ex: 'raridade-comum' -> 'Comum')
+        let classeCompleta = tr.cells[0].className;
+        let raridadeOriginal = "Comum"; // Valor default
+        if(classeCompleta.includes("raro")) raridadeOriginal = "Raro";
+        else if(classeCompleta.includes("epico")) raridadeOriginal = "Épico";
+        else if(classeCompleta.includes("lendario")) raridadeOriginal = "Lendário";
+
+        const itemAtualizado = {
+            id: id,
+            nome: nomeEditado,
+            tipo: tipoEditado,
+            raridade: raridadeOriginal,
+            quantidade: qtdEditada,
+            poder: poderEditado
+        };
+
+        try {
+            const resposta = await fetch(`/api/inventario/atualizar/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(itemAtualizado)
+            });
+
+            if (resposta.ok) {
+                carregarInventario(); // Recarrega a tabela com os novos dados
+            } else {
+                alert("Erro ao atualizar o item.");
+            }
+        } catch (erro) {
+            console.error("Erro ao atualizar:", erro);
+        }
+    }
+
+    // 5. Função para apagar o item (Excluir)
+    async function apagarItem(id) {
+        if (!confirm("Tens a certeza que queres deitar este item fora?")) {
+            return; 
+        }
+
+        try {
+            const resposta = await fetch(`/api/inventario/deletar/${id}`, {
+                method: 'DELETE'
+            });
+
+            if (resposta.ok) {
+                carregarInventario(); 
+            } else {
+                alert("Erro ao tentar jogar o item fora.");
+            }
+        } catch (erro) {
+            console.error("Erro ao apagar o item:", erro);
+        }
+    }
+
+    function usarItem(id) {
+        alert("Função de usar item (ID " + id + ") em desenvolvimento!");
+    }
+
+    window.onload = carregarInventario;
+</script>
+
+</body>
+</html>
