@@ -1,6 +1,6 @@
 # Pastas de compilação
-/target/
-/build/
+target/
+build/
 *.class
 *.jar
 *.war
@@ -24,7 +24,6 @@ nbproject/
 *.ipr
 
 # Segredos e Configurações locais (NUNCA ENVIAR)
-application.properties
 .env
 .env.example
 *.db
