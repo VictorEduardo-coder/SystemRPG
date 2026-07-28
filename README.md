@@ -69,28 +69,3 @@ mvn spring-boot:run
 ```
 
 A aplicação estará disponível em `http://localhost:8080`.
-
-## 🌐 Deploy na Vercel
-
-> **Nota:** A Vercel não suporta aplicações Spring Boot nativamente. Para fazer deploy desta API, considere as seguintes alternativas:
-> - **[Railway](https://railway.app)** — Suporte nativo para Java/Spring Boot
-> **[Render](https://render.com)** — Suporte para Java com Docker
-> - **[Google Cloud Run](https://cloud.google.com/run)** — Container-based deployment
-> - **[Fly.io](https://fly.io)** — Suporte para Java via Docker
->
-> Se ainda assim desejar usar a Vercel, é possível empacotar a aplicação como um container Docker e usar o [Vercel Docker Deploy](https://vercel.com/docs/concepts/projects/docker), ou utilizar a Vercel apenas para o frontend estático (Thymeleaf templates compilados como assets) e a API em um serviço separado.
-
-### Variáveis de Ambiente para Deploy
-
-Configure as seguintes variáveis no painel do serviço de deploy:
-
-| Variável | Descrição | Exemplo |
-|----------|-----------|---------|
-| `DB_URL` | URL de conexão MySQL | `jdbc:mysql://host:port/db` |
-| `DB_USERNAME` | Usuário do banco | `root` |
-| `DB_PASSWORD` | Senha do banco | `sua_senha` |
-| `SMTP_EMAIL` | Email para envio de logs | `email@gmail.com` |
-| `SMTP_PASSWORD` | Senha app do email | `senha_app` |
-| `SMTP_HOST` | Host SMTP | `smtp.gmail.com` |
-| `SMTP_PORT` | Porta SMTP | `587` |
-| `ALLOWED_ORIGINS` | Origens CORS permitidas | `http://localhost:3000` |

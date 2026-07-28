@@ -29,6 +29,3 @@ application.properties
 .env.example
 *.db
 *.sqlite
-
-# Vercel
-.vercel
