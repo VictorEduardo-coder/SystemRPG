@@ -94,4 +94,26 @@ public class UsuarioDAO {
         }
         return null;
     }
+
+    public static Usuario buscarPrimeiroUsuario() {
+        String sql = "SELECT * FROM usuarios LIMIT 1";
+
+        try (Connection conn = ConexaoDB.conectar();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            if (rs.next()) {
+                return new Usuario(
+                        rs.getInt("id"),
+                        rs.getString("nome"),
+                        rs.getString("login"),
+                        rs.getString("senha"),
+                        converterParaPerfil(rs.getString("tipo_conta"))
+                );
+            }
+        } catch (SQLException e) {
+            System.err.println("Erro ao buscar primeiro usuário: " + e.getMessage());
+        }
+        return null;
+    }
 }
