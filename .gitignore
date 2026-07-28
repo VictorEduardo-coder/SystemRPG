@@ -25,6 +25,5 @@ nbproject/
 
 # Segredos e Configurações locais (NUNCA ENVIAR)
 .env
-.env.example
 *.db
 *.sqlite
