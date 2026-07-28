@@ -18,16 +18,8 @@ public class LoginController {
      */
     @GetMapping({"/", "/login", "/index"})
     public String abrirLogin() {
-        // Auto-login com o primeiro usuário encontrado no banco
-        Usuario primeiroUsuario = UsuarioDAO.buscarPrimeiroUsuario();
-        if (primeiroUsuario != null) {
-            if (PerfilAcesso.MESTRE.equals(primeiroUsuario.getPerfil()) || PerfilAcesso.ADMIN.equals(primeiroUsuario.getPerfil())) {
-                return "redirect:/painel-mestre?usuarioId=" + primeiroUsuario.getId();
-            } else {
-                return "redirect:/painel-player?usuarioId=" + primeiroUsuario.getId();
-            }
-        }
-        return "index";
+        // Agora o Spring Boot vai procurar o arquivo "index.html" na pasta templates
+        return "index"; 
     }
 
    
