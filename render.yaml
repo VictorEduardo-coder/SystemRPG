@@ -1,10 +1,9 @@
 services:
   - type: web
     name: systemrpg
-    env: java
+    env: docker
     plan: free
-    buildCommand: cd zero && mvn clean package -DskipTests
-    startCommand: cd zero && java -jar target/*.jar
+    dockerfilePath: Dockerfile
     envVars:
       - key: DB_URL
         sync: false
