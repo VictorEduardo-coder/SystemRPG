@@ -1,0 +1,25 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "pom.xml",
+      "use": "@vercel/java-maven"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
+    }
+  ],
+  "env": {
+    "DB_URL": "@db_url",
+    "DB_USERNAME": "@db_username",
+    "DB_PASSWORD": "@db_password",
+    "SMTP_EMAIL": "@smtp_email",
+    "SMTP_PASSWORD": "@smtp_password",
+    "SMTP_HOST": "@smtp_host",
+    "SMTP_PORT": "@smtp_port",
+    "ALLOWED_ORIGINS": "@allowed_origins"
+  }
+}
