@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.rpgsystem.zero.model.Classe;
+import com.rpgsystem.zero.model.Corrupcao;
 import com.rpgsystem.zero.model.Ficha;
 import com.rpgsystem.zero.model.PerfilAcesso;
 import com.rpgsystem.zero.model.Usuario;
@@ -41,10 +42,12 @@ public class FichaController {
             List<Classe> todasAsClasses = ClasseDAO.listarTodasAsClasses();
             
             // 4. Envia tudo para o HTML
+            Corrupcao corrupcao = Corrupcao.calcular(ficha.getCorrupcao());
             model.addAttribute("ficha", ficha);
             model.addAttribute("classesDisponiveis", todasAsClasses);
             model.addAttribute("usuarioId", usuarioId);
             model.addAttribute("isMestre", isMestre);
+            model.addAttribute("corrupcao", corrupcao);
             
             return "editar-ficha"; 
         }

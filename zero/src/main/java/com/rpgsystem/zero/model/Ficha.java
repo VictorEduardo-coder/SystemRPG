@@ -65,6 +65,11 @@ public class Ficha {
     private String conexao;
 
     // ==========================================
+    // CORRUPÇÃO
+    // ==========================================
+    private int corrupcao;
+
+    // ==========================================
     // CONSTRUTORES
     // ==========================================
     
@@ -79,6 +84,7 @@ public class Ficha {
         this.titulo = "";
         this.nutricao = "BASICO";
         this.conexao = "NORMAL";
+        this.corrupcao = 0;
     }
 
     // Seu construtor original mantido (útil para quando você for criar via código no DAO)
@@ -225,6 +231,10 @@ public class Ficha {
 
     public String getConexao() { return conexao; }
     public void setConexao(String conexao) { this.conexao = conexao; }
+
+    // Corrupção
+    public int getCorrupcao() { return corrupcao; }
+    public void setCorrupcao(int corrupcao) { this.corrupcao = corrupcao; }
 
 @Override
 public String toString() {
