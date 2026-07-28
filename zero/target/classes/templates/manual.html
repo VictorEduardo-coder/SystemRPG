@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual do Sistema ZERO</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1a1a1d; /* Tema escuro RPG */
+            color: #d3d3d3;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: #2b2b30;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+        }
+        h1 {
+            text-align: center;
+            color: #c3073f; /* Vermelho RPG */
+            border-bottom: 2px solid #c3073f;
+            padding-bottom: 10px;
+        }
+        h2.categoria-titulo {
+            color: #6f2232;
+            margin-top: 40px;
+            border-bottom: 1px solid #4e4e50;
+            padding-bottom: 5px;
+        }
+        
+        /* TRANSFORMADO EM DETAILS COLAPSÁVEL */
+        details.regra-card {
+            background-color: #3b3b40;
+            border-left: 4px solid #950740;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        details.regra-card:hover {
+            background-color: #424249;
+        }
+        
+        /* TÍTULO DA REGRA (SUMMARY) */
+        summary.regra-titulo {
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #ffffff;
+            outline: none;
+            list-style: none; /* Remove a seta padrão do navegador */
+        }
+        summary.regra-titulo::-webkit-details-marker {
+            display: none; /* Remove a seta no Chrome/Safari */
+        }
+        
+        /* Adiciona indicador customizado antes do título */
+        summary.regra-titulo::before {
+            content: "▶  ";
+            color: #c3073f;
+            font-size: 0.8em;
+        }
+        details[open] summary.regra-titulo::before {
+            content: "▼  ";
+        }
+        
+        .regra-descricao {
+            white-space: pre-wrap; /* Mantém as quebras de linha digitadas no banco */
+            line-height: 1.6;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #4e4e50;
+            cursor: default; /* Mantém o ponteiro de texto normal na descrição */
+        }
+
+        /* =========================================
+           ÁREA DE CRIAÇÃO DO MESTRE
+           ========================================= */
+        .section-master-regra {
+            border: 2px dashed #c3073f;
+            padding: 25px;
+            border-radius: 8px;
+            background-color: #241619;
+            margin-top: 25px;
+            margin-bottom: 25px;
+        }
+        .section-master-regra h3 {
+            color: #c3073f;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+            color: #a1a1a1;
+            font-size: 0.9em;
+        }
+        .section-master-regra input[type="text"], 
+        .section-master-regra textarea {
+            width: 100%;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #4e4e50;
+            background-color: #1a1a1d;
+            color: white;
+            box-sizing: border-box;
+            font-family: inherit;
+            font-size: 1em;
+        }
+        .section-master-regra input[type="text"]:focus, 
+        .section-master-regra textarea:focus {
+            outline: none;
+            border-color: #c3073f;
+        }
+        .btn-salvar {
+            background-color: #28a745;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            font-size: 1.05em;
+            transition: background-color 0.2s;
+        }
+        .btn-salvar:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>📜 Manual de Regras</h1>
+
+        <div th:if="${isMestre}" class="section-master-regra">
+            <h3>➕ Adicionar Nova Regra ao Sistema</h3>
+            <form action="/Manual/criar" method="post">
+               <input type="hidden" name="usuarioId" th:value="${usuarioId}">
+                
+                <div class="form-group">
+                    <label>Categoria do Bloco:</label>
+                    <input type="text" name="categoria" required placeholder="Ex: Combate, Economia, Tron, Exploração...">
+                </div>
+                
+                <div class="form-group">
+                    <label>Título da Regra:</label>
+                    <input type="text" name="titulo" required placeholder="Ex: Penalidade de Fadiga, Uso de Tron...">
+                </div>
+                
+                <div class="form-group">
+                    <label>Conteúdo / Descrição Detalhada:</label>
+                    <textarea name="descricao" required rows="4" placeholder="Escreva os detalhes, dados e efeitos da regra aqui..."></textarea>
+                </div>
+                
+                <button type="submit" class="btn-salvar">💾 Gravar Nova Regra</button>
+            </form>
+        </div>
+
+        <div th:each="categoria : ${regrasAgrupadas}">
+            
+            <h2 class="categoria-titulo" th:text="${categoria.key}">Nome da Categoria</h2>
+
+            <details class="regra-card" th:each="regra : ${categoria.value}">
+                <summary class="regra-titulo" th:text="${regra.titulo}">Título da Regra</summary>
+                <div class="regra-descricao" th:text="${regra.descricao}">Descrição Completa da Regra</div>
+            </details>
+
+        </div>
+
+        <br>
+        <a th:href="${urlVoltar}" style="color: #c3073f; text-decoration: none; font-weight: bold;">← Voltar ao Painel</a>
+    </div>
+
+</body>
+</html>

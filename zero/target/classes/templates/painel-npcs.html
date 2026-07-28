@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de NPCs - ZERO RPG</title>
+    <style>
+        /* =========================================
+           CSS PADRÃO DO ZERO RPG
+           ========================================= */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: #1e1e24;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.8);
+        }
+        
+        /* Destaque em Cinza/Prata para NPCs */
+        h1 {
+            color: #7b8a8b; 
+            text-align: center;
+            border-bottom: 2px solid #7b8a8b;
+            padding-bottom: 15px;
+            margin-top: 0;
+        }
+
+        /* =========================================
+           ESTILOS DA TABELA
+           ========================================= */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: #2b2b36;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #3f3f4e;
+        }
+        th {
+            background-color: #7b8a8b; /* Cor do cabeçalho da tabela */
+            color: #121212;
+            font-weight: bold;
+        }
+        tr:hover {
+            background-color: #383846;
+        }
+
+        /* =========================================
+           BOTÕES DE AÇÃO
+           ========================================= */
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-block;
+            transition: opacity 0.2s;
+        }
+        .btn:hover { opacity: 0.8; }
+        
+        .btn-criar { background-color: #7b8a8b; color: #121212; padding: 10px 20px; font-size: 1.1em; } 
+        .btn-ver { background-color: #28a745; color: white; } 
+        .btn-editar { background-color: #2e8bc0; color: white; }
+        .btn-apagar { background-color: #c3073f; color: white; }
+        
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: #888;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>🗣️ Personagens Não-Jogáveis (NPCs)</h1>
+
+        <div class="header-actions">
+            <form action="/fichas/criar" method="post" style="display: flex; gap: 10px; align-items: center; width: 100%;">
+                <input type="hidden" name="usuarioId" th:value="${usuarioId}">
+                <input type="hidden" name="tipoFicha" value="NPC">
+                
+                <input type="text" name="nomePersonagem" required placeholder="Nome do novo NPC..." 
+                       style="padding: 10px; border-radius: 4px; border: 1px solid #4e4e50; background-color: #121212; color: white; flex-grow: 1;">
+                
+                <button type="submit" class="btn btn-criar">➕ Adicionar NPC</button>
+            </form>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Classe</th>
+                    <th>Nível</th>
+                    <th>Vida (HP)</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="npc : ${fichasNPC}">
+                    <td th:text="${npc.id}">1</td>
+                    <td th:text="${npc.nome}" style="font-weight: bold; color: #fff;">Mercador Viajante</td>
+                    <td th:text="${npc.classe}">Comerciante</td>
+                    <td th:text="${npc.nivel}">5</td>
+                    <td style="color: #ff4c4c;">❤️ <span th:text="${npc.vida}">50</span></td>
+                    <td>
+                        <a th:href="@{/painel-player(usuarioId=${npc.usuarioId}, mestreVisualizando=true)}" class="btn btn-ver">👁️ Ver</a>
+                        <a th:href="@{/fichas/editar(fichaId=${npc.id}, usuarioId=${usuarioId})}" class="btn btn-editar">✏️ Editar</a>
+                        <form action="/painel-mestre/npcs/deletar" method="post" style="display:inline;" onsubmit="return confirm('Deseja apagar este NPC permanentemente?');">
+                        <input type="hidden" name="fichaId" th:value="${npc.id}">
+                        <input type="hidden" name="usuarioId" th:value="${usuarioId}">
+                        <button type="submit" class="btn btn-apagar">🗑️ Apagar</button>
+                    </form>
+                    </td>
+                </tr>
+                
+                <tr th:if="${#lists.isEmpty(fichasNPC)}">
+                    <td colspan="6" class="empty-state">O mundo está vazio. Nenhum NPC foi criado ainda.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <br>
+        <div style="border-top: 1px solid #383846; padding-top: 15px; margin-top: 20px;">
+            <a th:href="@{/painel-mestre(usuarioId=${usuarioId})}" style="color: #888; text-decoration: none;">← Voltar ao Painel do Mestre</a>
+        </div>
+    </div>
+
+</body>
+</html>
