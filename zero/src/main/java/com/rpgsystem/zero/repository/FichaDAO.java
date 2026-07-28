@@ -109,6 +109,9 @@ public class FichaDAO {
         ficha.setNutricao(rs.getString("nutricao"));
         ficha.setConexao(rs.getString("conexao"));
 
+        // 7. CORRUPÇÃO
+        ficha.setCorrupcao(rs.getInt("corrupcao"));
+
         return ficha;
     }
     // ==================================================
@@ -129,9 +132,10 @@ public class FichaDAO {
                 classe,
                 titulo,
                 nutricao,
-                conexao
+                conexao,
+                corrupcao
             )
-            VALUES (?, ?, ?, 1, 0, 10, 'Sem Classe', '', 'BASICO', 'NORMAL')
+            VALUES (?, ?, ?, 1, 0, 10, 'Sem Classe', '', 'BASICO', 'NORMAL', 0)
         """;
 
         try (
@@ -334,7 +338,8 @@ public class FichaDAO {
                 custo_vida = ?,
                 dias_restantes = ?,
                 nutricao = ?,
-                conexao = ?
+                conexao = ?,
+                corrupcao = ?
 
             WHERE id = ?
         """;
@@ -388,8 +393,11 @@ public class FichaDAO {
             stmt.setString(31, ficha.getNutricao());
             stmt.setString(32, ficha.getConexao());
 
+            // CORRUPÇÃO
+            stmt.setInt(33, ficha.getCorrupcao());
+
             // ID
-            stmt.setInt(33, ficha.getId());
+            stmt.setInt(34, ficha.getId());
 
             stmt.executeUpdate();
             return true;

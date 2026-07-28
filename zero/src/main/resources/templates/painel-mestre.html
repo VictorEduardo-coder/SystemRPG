@@ -161,6 +161,7 @@
                     <th>Nível</th>
                     <th>Vida</th>
                     <th>Mana</th>
+                    <th>Corrupção</th>
                     <th>Ações</th>
                 </tr>
             </thead>
@@ -171,8 +172,15 @@
                     <td th:text="${ficha.classe}">Guerreiro</td>
                     <td th:text="${ficha.nivel}">1</td>
                     <td style="color: #ff4c4c;">❤️ <span th:text="${ficha.vida}">0</span></td>
-                    <td style="color: #4c9aff;">💧 <span th:text="${ficha.mana}">0</span></td>
-                    <td>
+<td style="color: #4c9aff;">💧 <span th:text="${ficha.mana}">0</span></td>
+                    					<td>
+                    						<div th:if="${ficha.corrupcao > 0}" style="background-color: #383846; border-radius: 4px; height: 10px; overflow: hidden; min-width: 60px;">
+                    							<div th:style="'width: ' + ${ficha.corrupcao} + '%; background-color: ' + ${ficha.corrupcao > 80 ? '#dc3545' : ficha.corrupcao > 60 ? '#fd7e14' : ficha.corrupcao > 50 ? '#ffc107' : '#28a745'} + '; height: 100%; border-radius: 4px;'"></div>
+                    						</div>
+                    						<span th:if="${ficha.corrupcao == 0}" class="sub-text">—</span>
+                    						<span th:unless="${ficha.corrupcao == 0}" class="sub-text" th:text="${ficha.corrupcao} + '%'">0</span>
+                    					</td>
+                    					<td>
                         <a th:href="@{/painel-player(usuarioId=${ficha.usuarioId}, mestreVisualizando=true)}" class="btn btn-ver">👁️ Ver</a>
                         
                         <a th:href="@{/fichas/editar(fichaId=${ficha.id}, usuarioId=${usuarioId})}" class="btn btn-editar">✏️ Editar</a>

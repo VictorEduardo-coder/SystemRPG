@@ -123,6 +123,18 @@
                 </p>
             </div>
 
+            <div class="card" th:if="${corrupcao != null}">
+                <h3 style="margin-top: 0; color: #dc3545;">☠️ Corrupção</h3>
+                <p><strong>Nível:</strong> <span th:text="${corrupcao.nivel}">0</span> / 100</p>
+                <p><strong>Estágio:</strong> <span th:text="${corrupcao.estagio}">🟢 Seguro</span></p>
+                <p><strong>Efeito:</strong> <span th:text="${corrupcao.efeitoMecanico}">Nenhum.</span></p>
+                <p><strong>Visual:</strong> <span th:text="${corrupcao.descricaoVisual}">Aparência normal.</span></p>
+                <div style="background-color: #383846; border-radius: 4px; height: 20px; margin-top: 10px; overflow: hidden;">
+                    <div th:style="'width: ' + ${corrupcao.nivel} + '%; background-color: ' + ${corrupcao.cor} + '; height: 100%; border-radius: 4px; transition: width 0.5s;'"></div>
+                </div>
+                <p class="sub-text" style="margin-top: 5px;">Barra de corrupção</p>
+            </div>
+
             <div class="card">
                 <h3 style="margin-top: 0; color: #9b59b6;">🎲 Rolar Dados</h3>
                 <p class="sub-text">Ex: 1d20 + 5, 2d6 - 1</p>

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.rpgsystem.zero.model.Classe;
+import com.rpgsystem.zero.model.Corrupcao;
 import com.rpgsystem.zero.model.Ficha;
 import com.rpgsystem.zero.repository.ClasseDAO;
 import com.rpgsystem.zero.repository.FichaDAO;
@@ -34,10 +35,14 @@ public class JogadorController {
         // Busca todas as classes existentes no banco
         List<Classe> todasAsClasses = ClasseDAO.listarTodasAsClasses();
         
+        // Calcula a corrupção
+        Corrupcao corrupcao = Corrupcao.calcular(ficha != null ? ficha.getCorrupcao() : 0);
+        
         model.addAttribute("ficha", ficha);
         model.addAttribute("classesDisponiveis", todasAsClasses); // Envia as classes para o HTML
         model.addAttribute("usuarioId", usuarioId);
-        model.addAttribute("isMestre", false); 
+        model.addAttribute("isMestre", false);
+        model.addAttribute("corrupcao", corrupcao); 
         
         return "painel-player";
     }
