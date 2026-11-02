@@ -128,7 +128,7 @@
                     <td th:text="${npc.nivel}">5</td>
                     <td style="color: #ff4c4c;">❤️ <span th:text="${npc.vida}">50</span></td>
                     <td>
-                        <a th:href="@{/painel-player(usuarioId=${npc.usuarioId}, mestreVisualizando=true)}" class="btn btn-ver">👁️ Ver</a>
+                        <a th:href="@{/painel-player(usuarioId=${usuarioId}, fichaId=${npc.id})}" class="btn btn-ver">👁️ Ver</a>
                         <a th:href="@{/fichas/editar(fichaId=${npc.id}, usuarioId=${usuarioId})}" class="btn btn-editar">✏️ Editar</a>
                         <form action="/painel-mestre/npcs/deletar" method="post" style="display:inline;" onsubmit="return confirm('Deseja apagar este NPC permanentemente?');">
                         <input type="hidden" name="fichaId" th:value="${npc.id}">

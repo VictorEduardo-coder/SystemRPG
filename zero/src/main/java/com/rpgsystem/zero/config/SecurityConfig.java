@@ -8,7 +8,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
+import com.rpgsystem.zero.model.PerfilAcesso;
 import com.rpgsystem.zero.model.Usuario;
 import com.rpgsystem.zero.repository.UsuarioDAO;
 
@@ -28,7 +30,9 @@ public class SecurityConfig {
             .formLogin(form -> form
                 .loginPage("/index")
                 .loginProcessingUrl("/login")
-                .defaultSuccessUrl("/painel-player", true)
+                .usernameParameter("login")
+                .passwordParameter("senha")
+                .successHandler(authenticationSuccessHandler())
                 .failureUrl("/index?erro=true")
                 .permitAll()
             )
@@ -40,6 +44,22 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable());
 
         return http.build();
+    }
+
+    @Bean
+    public AuthenticationSuccessHandler authenticationSuccessHandler() {
+        return (request, response, authentication) -> {
+            Usuario usuario = UsuarioDAO.buscarUsuarioPorLogin(authentication.getName());
+            if (usuario != null) {
+                if (PerfilAcesso.MESTRE.equals(usuario.getPerfil()) || PerfilAcesso.ADMIN.equals(usuario.getPerfil())) {
+                    response.sendRedirect("/painel-mestre?usuarioId=" + usuario.getId());
+                } else {
+                    response.sendRedirect("/painel-player?usuarioId=" + usuario.getId());
+                }
+            } else {
+                response.sendRedirect("/index?erro=true");
+            }
+        };
     }
 
     @Bean
