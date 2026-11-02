@@ -21,7 +21,7 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.8);
         }
         h1 {
-            color: #d4af37; /* Dourado Mestre */
+            color: #d4af37;
             text-align: center;
             border-bottom: 2px solid #d4af37;
             padding-bottom: 15px;
@@ -55,16 +55,13 @@
             text-decoration: none;
             display: inline-block;
         }
-        
         .btn-ver { background-color: #28a745; color: white; } 
         .btn-editar { background-color: #2e8bc0; color: white; }
         .btn-apagar { background-color: #c3073f; color: white; }
-        
         .header-actions {
             margin-top: 20px;
             margin-bottom: 20px;
         }
-        
         .menu-navegacao {
             display: flex;
             flex-wrap: wrap;
@@ -72,8 +69,6 @@
             justify-content: center;
             margin-bottom: 20px;
         }
-
-        /* --- Estilos do Terminal de Rolagens --- */
         .log-container {
             background-color: #0d0d0d;
             border: 1px solid #d4af37;
@@ -120,25 +115,21 @@
 
         <div class="header-actions">
             <div class="menu-navegacao">
-                    <a th:href="@{/Manual(usuarioId=${usuarioId})}" class="btn" style="background-color: #2e8bc0; color: white;">
-                        📖 Manual de Regras
-                    </a>
-
+                <a th:href="@{/Manual(usuarioId=${usuarioId})}" class="btn" style="background-color: #2e8bc0; color: white;">
+                    📖 Manual de Regras
+                </a>
                 <a th:href="@{/painel-mestre/habilidades(usuarioId=${usuarioId})}" 
                    class="btn" style="background-color: #d4af37; color: black;">
                     ✨ Habilidades
                 </a>
-
-              <a th:href="@{/painel-mestre/npcs(usuarioId=${usuarioLogadoId})}" 
+                <a th:href="@{/painel-mestre/npcs(usuarioId=${usuarioLogadoId})}" 
                    class="btn" style="background-color: #7b8a8b; color: white;">
                     🗣️ Ver NPCs
                 </a>
-
                 <a th:href="@{/painel-mestre/monstros(usuarioId=${usuarioLogadoId})}" 
                    class="btn" style="background-color: #8e44ad; color: white;">
                     👹 Ver Monstros
                 </a>
-
                 <a th:href="@{/painel-mestre/boss(usuarioId=${usuarioLogadoId})}" 
                    class="btn" style="background-color: #c3073f; color: white;">
                     💀 Ver Bosses
@@ -172,30 +163,33 @@
                     <td th:text="${ficha.classe}">Guerreiro</td>
                     <td th:text="${ficha.nivel}">1</td>
                     <td style="color: #ff4c4c;">❤️ <span th:text="${ficha.vida}">0</span></td>
-<td style="color: #4c9aff;">💧 <span th:text="${ficha.mana}">0</span></td>
-                    					<td>
-                    						<div th:if="${ficha.corrupcao > 0}" style="background-color: #383846; border-radius: 4px; height: 10px; overflow: hidden; min-width: 60px;">
-                    							<div th:style="'width: ' + ${ficha.corrupcao} + '%; background-color: ' + ${ficha.corrupcao > 80 ? '#dc3545' : ficha.corrupcao > 60 ? '#fd7e14' : ficha.corrupcao > 50 ? '#ffc107' : '#28a745'} + '; height: 100%; border-radius: 4px;'"></div>
-                    						</div>
-                    						<span th:if="${ficha.corrupcao == 0}" class="sub-text">—</span>
-                    						<span th:unless="${ficha.corrupcao == 0}" class="sub-text" th:text="${ficha.corrupcao} + '%'">0</span>
-                    					</td>
-                    					<td>
-                        <a th:href="@{/painel-player(usuarioId=${ficha.usuarioId}, mestreVisualizando=true)}" class="btn btn-ver">👁️ Ver</a>
-                        
+                    <td style="color: #4c9aff;">💧 <span th:text="${ficha.mana}">0</span></td>
+                    <td>
+                        <div th:if="${ficha.corrupcao > 0}" style="background-color: #383846; border-radius: 4px; height: 10px; overflow: hidden; min-width: 60px;">
+                            <div th:style="'width: ' + ${ficha.corrupcao} + '%; background-color: ' + ${ficha.corrupcao > 80 ? '#dc3545' : ficha.corrupcao > 60 ? '#fd7e14' : ficha.corrupcao > 50 ? '#ffc107' : '#28a745'} + '; height: 100%; border-radius: 4px;'"></div>
+                        </div>
+                        <span th:if="${ficha.corrupcao == 0}" class="sub-text">—</span>
+                        <span th:unless="${ficha.corrupcao == 0}" class="sub-text" th:text="${ficha.corrupcao} + '%'">0</span>
+                    </td>
+                    <td>
+                        <a th:href="@{/painel-player(usuarioId=${usuarioId}, fichaId=${ficha.id})}" class="btn btn-ver">👁️ Ver</a>
                         <a th:href="@{/fichas/editar(fichaId=${ficha.id}, usuarioId=${usuarioId})}" class="btn btn-editar">✏️ Editar</a>
-                        <a href="#" class="btn btn-apagar">🗑️ Apagar</a>
+                        <form action="/painel-mestre/fichas/deletar" method="post" style="display:inline;" onsubmit="return confirm('Deseja apagar esta ficha permanentemente?');">
+                            <input type="hidden" name="fichaId" th:value="${ficha.id}">
+                            <input type="hidden" name="usuarioId" th:value="${usuarioId}">
+                            <button type="submit" class="btn btn-apagar">🗑️ Apagar</button>
+                        </form>
                     </td>
                 </tr>
                 
                 <tr th:if="${#lists.isEmpty(fichas)}">
-                    <td colspan="7" style="text-align: center; padding: 20px;">Nenhuma ficha encontrada no sistema.</td>
+                    <td colspan="8" style="text-align: center; padding: 20px;">Nenhuma ficha encontrada no sistema.</td>
                 </tr>
             </tbody>
         </table>
 
         <br>
-        <a href="/index" style="color: #888; text-decoration: none;">← Sair do Painel</a>
+        <a href="/logout" style="color: #888; text-decoration: none;">← Sair do Painel</a>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.1/dist/sockjs.min.js"></script>
@@ -205,24 +199,16 @@
         let stompClient = null;
 
         function conectarWebSocket() {
-            // Conecta ao endpoint que criamos no WebSocketConfig.java
             const socket = new SockJS('/ws-rpg');
             stompClient = Stomp.over(socket);
-            
-            // Oculta logs excessivos no console (opcional)
             stompClient.debug = null; 
 
             stompClient.connect({}, function (frame) {
-                console.log('Conectado ao painel do Mestre: ' + frame);
-                
-                // Inscreve-se no tópico de mensagens do mestre
                 stompClient.subscribe('/topic/mestre', function (mensagem) {
-                    // Quando chega uma mensagem do back-end, manda para a função exibir
                     exibirRolagem(JSON.parse(mensagem.body));
                 });
             }, function(error) {
                 console.error("Erro no WebSocket: ", error);
-                // Tenta reconectar após 5 segundos em caso de queda
                 setTimeout(conectarWebSocket, 5000);
             });
         }
@@ -230,18 +216,15 @@
         function exibirRolagem(dados) {
             const logBox = document.getElementById('log-rolagens');
             
-            // Remove a mensagem de "Aguardando..." se for a primeira rolagem
             if (logBox.innerHTML.includes("Aguardando os jogadores")) {
                 logBox.innerHTML = ''; 
             }
 
-            // Pega a hora atual
             const agora = new Date();
             const horaFormatada = agora.getHours().toString().padStart(2, '0') + ':' + 
                                   agora.getMinutes().toString().padStart(2, '0') + ':' + 
                                   agora.getSeconds().toString().padStart(2, '0');
 
-            // Cria o elemento visual da rolagem
             const novaRolagem = document.createElement('div');
             novaRolagem.classList.add('log-item');
             
@@ -251,11 +234,9 @@
                 <span style="color: #fff;">${dados.resultado}</span>
             `;
 
-            // Adiciona no topo da lista (prepend)
             logBox.prepend(novaRolagem);
         }
 
-        // Inicia a conexão assim que a página carrega
         window.onload = conectarWebSocket;
     </script>
 </body>

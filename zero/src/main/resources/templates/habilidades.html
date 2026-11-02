@@ -8,7 +8,6 @@
         .container { max-width: 900px; margin: 0 auto; background-color: #2b2b30; padding: 30px; border-radius: 10px; }
         h1 { color: #c3073f; text-align: center; border-bottom: 2px solid #c3073f; padding-bottom: 10px; }
         .section-header { color: #2e8bc0; margin-top: 40px; border-bottom: 2px solid #2e8bc0; padding-bottom: 5px; }
-        
         .master-panel { background-color: #241619; padding: 20px; border: 2px dashed #c3073f; border-radius: 8px; margin-bottom: 30px; }
         .classe-accordion { background-color: #3b3b40; margin-bottom: 15px; border-radius: 8px; border-left: 5px solid #4e4e50; overflow: hidden; }
         .classe-accordion.hibrida { border-left: 5px solid #d4af37; }
@@ -87,13 +86,15 @@
                         </select>
                         
                         <input type="text" name="nome" placeholder="Nome da Habilidade" required>
-                    <select name="tier">
-                        <option value="PASSIVA">Passiva</option>
-                        <option value="TIER 1">Ativa Tier 1</option>
-                        <option value="TIER 2">Ativa Tier 2</option>
-                        <option value="TIER 3">Ativa Tier 3</option>
-                        <option value="ULTIMATE">Supremo</option>
-                    </select>
+                        <select name="tier">
+                            <option value="PASSIVA">Passiva</option>
+                            <option value="TIER 1">Ativa Tier 1</option>
+                            <option value="TIER 2">Ativa Tier 2</option>
+                            <option value="TIER 3">Ativa Tier 3</option>
+                            <option value="ULTIMATE">Supremo</option>
+                        </select>
+                        <input type="text" name="dano" placeholder="Dano (ex: 2d6 + Força)" required>
+                        <input type="number" name="custoMana" placeholder="Custo de Mana" value="0" min="0" required>
                         <textarea name="descricao" placeholder="Descrição da Habilidade"></textarea>
                         <button type="submit">Salvar Habilidade</button>
                     </form>

@@ -167,7 +167,7 @@
         <br/><br/>
         
         <div style="display: flex; justify-content: space-between; border-top: 1px solid #383846; padding-top: 15px;">
-            <a th:if="${isMestre}" th:href="@{/painel-mestre}" style="color: #888; text-decoration: none;">← Voltar ao Painel Mestre</a>
+            <a th:if="${isMestre}" th:href="@{/painel-mestre(usuarioId=${usuarioId})}" ...>
             <a th:unless="${isMestre}" th:href="@{/index}" style="color: #888; text-decoration: none;">← Logout</a>
             
             <a th:href="@{/Manual(usuarioId=${usuarioId})}" style="color: #2e8bc0; text-decoration: none;">Ler Manual de Regras</a>

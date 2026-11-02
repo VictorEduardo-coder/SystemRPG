@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.rpgsystem.zero.model.ItemRPG;
@@ -28,12 +29,15 @@ public class InventarioController {
     }
 
     @GetMapping
-    public List<ItemRPG> getInventario() {
-        return itemDAO.listarInventario();
+    public List<ItemRPG> getInventario(@RequestParam("fichaId") int fichaId) {
+        return itemDAO.listarInventarioPorFicha(fichaId);
     }
 
     @PostMapping("/adicionar")
     public ResponseEntity<String> adicionarLoot(@RequestBody ItemRPG novoItem) {
+        if (novoItem.getFichaId() == null) {
+            return ResponseEntity.badRequest().body("fichaId é obrigatório.");
+        }
         itemDAO.adicionarItem(novoItem);
         return ResponseEntity.ok("Item guardado na mochila!");
     }

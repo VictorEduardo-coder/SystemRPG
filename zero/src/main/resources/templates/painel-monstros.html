@@ -128,7 +128,7 @@
                     <td th:text="${monstro.nivel}">3</td>
                     <td style="color: #ff4c4c;">❤️ <span th:text="${monstro.vida}">35</span></td>
                     <td>
-                        <a th:href="@{/painel-player(usuarioId=${monstro.usuarioId}, mestreVisualizando=true)}" class="btn btn-ver">👁️ Ver</a>
+                        <a th:href="@{/painel-player(usuarioId=${usuarioId}, fichaId=${monstro.id})}" class="btn btn-ver">👁️ Ver</a>
                         <a th:href="@{/fichas/editar(fichaId=${monstro.id}, usuarioId=${usuarioId})}" class="btn btn-editar">✏️ Editar</a>
                         <form action="/painel-mestre/monstros/deletar" method="post" style="display:inline;" onsubmit="return confirm('Deseja apagar este monstro permanentemente?');">
                             <input type="hidden" name="fichaId" th:value="${monstro.id}">

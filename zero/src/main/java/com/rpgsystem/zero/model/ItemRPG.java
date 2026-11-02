@@ -2,18 +2,18 @@ package com.rpgsystem.zero.model;
 
 public class ItemRPG {
     private Long id;
+    private Integer fichaId;
     private String nome;
-    private String tipo; // Ex: Consumível, Espada, Escudo
-    private String raridade; // Ex: Comum, Raro, Épico, Lendário
+    private String tipo;
+    private String raridade;
     private int quantidade;
-    private int poder; // Pode ser dano de arma ou cura de poção
+    private int poder;
 
-    // Construtor vazio
     public ItemRPG() {}
 
-    // Construtor completo
-    public ItemRPG(Long id, String nome, String tipo, String raridade, int quantidade, int poder) {
+    public ItemRPG(Long id, Integer fichaId, String nome, String tipo, String raridade, int quantidade, int poder) {
         this.id = id;
+        this.fichaId = fichaId;
         this.nome = nome;
         this.tipo = tipo;
         this.raridade = raridade;
@@ -21,9 +21,10 @@ public class ItemRPG {
         this.poder = poder;
     }
 
-    // Getters e Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
+    public Integer getFichaId() { return fichaId; }
+    public void setFichaId(Integer fichaId) { this.fichaId = fichaId; }
     public String getNome() { return nome; }
     public void setNome(String nome) { this.nome = nome; }
     public String getTipo() { return tipo; }
