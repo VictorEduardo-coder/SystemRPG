@@ -14,7 +14,7 @@ import com.rpgsystem.zero.repository.UsuarioDAO;
 @Controller
 public class LoginController {
 
-    @GetMapping({"/", "/login", "/index"})
+    @GetMapping({"/login", "/index"})
     public String abrirLogin(
             @RequestParam(value = "erro", required = false) String erro,
             Authentication authentication,
