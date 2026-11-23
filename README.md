@@ -5,6 +5,7 @@
 ![Spring Security](https://img.shields.io/badge/Spring_Security-6DB33F?style=for-the-badge&logo=springsecurity&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL_%2F_TiDB_Cloud-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+[![CI](https://github.com/VictorEduardo-coder/SystemRPG/actions/workflows/ci.yml/badge.svg)](https://github.com/VictorEduardo-coder/SystemRPG/actions/workflows/ci.yml)
 
 ## Sobre o Projeto
 
@@ -154,6 +155,104 @@ docker run --rm -p 4000:4000 \
   -e DB_PASSWORD="sua_senha" \
   systemrpg
 ```
+
+---
+
+## Principais Rotas e Endpoints
+
+| Tipo | Método e Rota | Autenticação | Responsabilidade |
+| :--- | :--- | :---: | :--- |
+| **Web (Thymeleaf)** | `GET /`, `/index`, `/login`, `GET/POST /cadastro` | Pública | Login, redirecionamento inicial e criação de conta |
+| **Web (Jogador)** | `GET /painel-player`, `GET /fichas/editar`, `POST /fichas/criar`, `POST /fichas/salvar`, `POST /fichas/deletar` | Obrigatória | Painel do jogador e CRUD de fichas |
+| **Web (Mestre)** | `GET /painel-mestre`, `/painel-mestre/npcs`, `/painel-mestre/monstros`, `/painel-mestre/boss` | Obrigatória | Gestão da campanha, NPCs, monstros, bosses e log ao vivo |
+| **Web (Compêndio)** | `GET /Manual`, `POST /Manual/criar`, `GET /habilidades`, `POST /classes/salvar`, `POST /habilidades/salvar` | Obrigatória | Manual de regras, classes base/híbridas e habilidades |
+| **API REST** | `POST /api/dados/rolar` | Obrigatória | Calcula rolagem (`2d6+3`) e publica no tópico WebSocket `/topic/mestre` |
+| **API REST** | `GET /api/inventario?fichaId=`, `POST /api/inventario/adicionar`, `PUT /api/inventario/atualizar/{id}`, `DELETE /api/inventario/deletar/{id}` | Obrigatória | CRUD de itens da mochila por ficha |
+
+---
+
+## Modelagem do Banco de Dados (`schema.sql`)
+
+```mermaid
+erDiagram
+    usuarios ||--o{ fichas : possui
+    classes ||--o{ habilidades : define
+    classes ||--o{ classes : "herda (classe_base)"
+    fichas ||--o{ ficha_habilidades : vincula
+    habilidades ||--o{ ficha_habilidades : associada
+
+    usuarios {
+        int id PK
+        varchar nome
+        varchar login UK
+        varchar senha
+        varchar tipo_conta
+    }
+    fichas {
+        int id PK
+        int usuario_id FK
+        varchar nome
+        varchar tipo_ficha
+        int nivel
+        int gold
+        int tr
+        int corrupcao
+    }
+    classes {
+        int id PK
+        varchar nome
+        boolean eh_hibrida
+        int classe_base_id FK
+        int classe_base2_id FK
+    }
+    habilidades {
+        int id PK
+        varchar nome
+        varchar tier
+        int custo_mana
+        int classe_id FK
+    }
+    inventario_rpg {
+        bigint id PK
+        varchar nome
+        varchar tipo
+        varchar raridade
+        int quantidade
+        int poder
+    }
+    manual_regras {
+        int id PK
+        varchar titulo
+        varchar categoria
+    }
+```
+
+---
+
+## Testes Automatizados e CI
+
+A suíte de testes usa **JUnit 5**, **Mockito**, **Spring Security Test** e **H2 em memória (modo MySQL)** — rodando sem depender de banco externo:
+
+- `ZeroApplicationTests`: valida bootstrap do contexto Spring e configuração do `BCryptPasswordEncoder`.
+- `DadoServiceTest`: testa rolagem com modificadores positivos/negativos, notação reduzida (`d20`), entradas vazias e rejeição de limites inválidos (`0d20`, `101d6`, `1d10001`).
+- `CorrupcaoAndFichaTest`: valida todos os 7 estágios de corrupção, atributos derivados da `Ficha` e a matriz de permissões RBAC de `PerfilAcesso`.
+- `DadoAndSecurityControllerTest` (`MockMvc`): valida rotas públicas, redirecionamento de acessos anônimos para `/index`, rolagem autenticada com envio ao tópico `/topic/mestre` e validação HTTP `400` no inventário.
+
+```bash
+cd zero
+./mvnw test
+```
+
+O workflow `.github/workflows/ci.yml` executa a compilação e toda a suíte automaticamente no **GitHub Actions** (JDK 21).
+
+---
+
+## Limitações Conhecidas e Próximos Passos
+
+- Reativar proteção **CSRF** com injeção explícita de tokens nos formulários Thymeleaf e requisições `fetch()`.
+- Substituir parâmetros de query (`?usuarioId=`) pela resolução exclusiva do usuário autenticado via `Principal` / `SecurityContext` em todos os controllers.
+- Expandir a camada `Service` e DTOs para reduzir acoplamento direto entre controllers e DAOs JDBC.
+- Publicar documentação interativa OpenAPI/Swagger para os endpoints `/api/**`.
 
 ---
 
