@@ -10,15 +10,15 @@ classes,bonus,VARCHAR(255),,,
 classes,debuff,VARCHAR(255),,,
 classes,eh_hibrida,BOOLEAN,,,
 classes,descricao,TEXT,,,
-classes,classe_base_id,INT,,classes(id)
-classes,classe_base2_id,INT,,classes(id)
+classes,classe_base_id,INT,,,classes(id)
+classes,classe_base2_id,INT,,,classes(id)
 fichas,id,INT,AUTO_INCREMENT PRIMARY KEY,,
-fichas,usuario_id,INT,NOT NULL,usuarios(id)
+fichas,usuario_id,INT,NOT NULL,,usuarios(id)
 fichas,nome,VARCHAR(255),NOT NULL,,
 fichas,tipo_ficha,VARCHAR(50),NOT NULL,,
-fichas,nivel,INT,DEFAULT 1,1
-fichas,xp_atual,INT,DEFAULT 0,0
-fichas,xp_proximo,INT,DEFAULT 10,10
+fichas,nivel,INT,DEFAULT 1,1,
+fichas,xp_atual,INT,DEFAULT 0,0,
+fichas,xp_proximo,INT,DEFAULT 10,10,
 fichas,idade,INT,,,
 fichas,classe,VARCHAR(100),,,
 fichas,titulo,VARCHAR(255),,,
@@ -47,16 +47,16 @@ fichas,custo_vida,DOUBLE,,,
 fichas,dias_restantes,INT,,,
 fichas,nutricao,VARCHAR(100),,,
 fichas,conexao,VARCHAR(100),,,
-fichas,corrupcao,INT,DEFAULT 0,0
+fichas,corrupcao,INT,DEFAULT 0,0,
 habilidades,id,INT,AUTO_INCREMENT PRIMARY KEY,,
 habilidades,nome,VARCHAR(255),NOT NULL,,
 habilidades,descricao,TEXT,,,
 habilidades,tier,VARCHAR(50),,,
 habilidades,dano,VARCHAR(50),,,
 habilidades,custo_mana,INT,,,
-habilidades,classe_id,INT,,classes(id)
-ficha_habilidades,ficha_id,INT,NOT NULL PRIMARY KEY,fichas(id)
-ficha_habilidades,habilidade_id,INT,NOT NULL PRIMARY KEY,habilidades(id)
+habilidades,classe_id,INT,,,classes(id)
+ficha_habilidades,ficha_id,INT,NOT NULL PRIMARY KEY,,fichas(id)
+ficha_habilidades,habilidade_id,INT,NOT NULL PRIMARY KEY,,habilidades(id)
 inventario_rpg,id,BIGINT,AUTO_INCREMENT PRIMARY KEY,,
 inventario_rpg,nome,VARCHAR(255),NOT NULL,,
 inventario_rpg,tipo,VARCHAR(100),,,
