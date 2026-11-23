@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
     <title>O Meu Painel - ZERO RPG</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #121212; color: #e0e0e0; margin: 0; padding: 20px; }
@@ -41,7 +43,7 @@
             <h2 style="text-align: center;">Ainda não tens um personagem!</h2>
             <p style="text-align: center;">Cria a tua ficha de nível 1 para começares a jogar.</p>
             
-            <form action="/fichas/criar" method="post">
+            <form th:action="@{/fichas/criar}" method="post">
                 <input type="hidden" name="usuarioId" th:value="${usuarioId}" />
                 <label>Nome do Personagem:</label>
                 <input type="text" name="nomePersonagem" required="required" placeholder="Ex: Cachorro Anão..." />
@@ -155,7 +157,7 @@
                 </a>
 
                 <a th:href="@{/fichas/editar(fichaId=${ficha.id}, usuarioId=${usuarioId})}" class="btn btn-editar">✏️ Editar Ficha</a>                
-                <form action="/fichas/deletar" method="post" style="margin: 0;" onsubmit="return confirm('Tens a certeza absoluta que queres eliminar o teu personagem? Esta ação é irreversível!');">
+                <form th:action="@{/fichas/deletar}" method="post" style="margin: 0;" onsubmit="return confirm('Tens a certeza absoluta que queres eliminar o teu personagem? Esta ação é irreversível!');">
                     <input type="hidden" name="fichaId" th:value="${ficha.id}" />
                     <input type="hidden" name="usuarioId" th:value="${usuarioId}" />
                     <button type="submit" class="btn btn-apagar">☠️ Apagar Ficha</button>
@@ -191,11 +193,14 @@
             resultadoDiv.innerText = "Rolando 🎲...";
 
             try {
+                const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+                const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
+                const headers = { 'Content-Type': 'application/json' };
+                if (csrfToken && csrfHeader) headers[csrfHeader] = csrfToken;
+
                 const response = await fetch('/api/dados/rolar', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: headers,
                     body: JSON.stringify({ expressao: expressao, nomeJogador: nomeJogador })
                 });
 

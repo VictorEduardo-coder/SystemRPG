@@ -2,6 +2,7 @@ package com.rpgsystem.zero.controller;
 
 import java.util.List;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,108 +13,68 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.rpgsystem.zero.model.Classe;
 import com.rpgsystem.zero.model.Corrupcao;
 import com.rpgsystem.zero.model.Ficha;
-import com.rpgsystem.zero.model.PerfilAcesso;
 import com.rpgsystem.zero.model.Usuario;
 import com.rpgsystem.zero.repository.ClasseDAO;
 import com.rpgsystem.zero.repository.FichaDAO;
-import com.rpgsystem.zero.repository.UsuarioDAO;
+import com.rpgsystem.zero.service.AutorizacaoService;
 
 @Controller
 public class FichaController {
 
-    // ==================================================
-    // ABRIR TELA DE EDIÇÃO
-    // ==================================================
+    private final AutorizacaoService autorizacaoService;
+
+    public FichaController(AutorizacaoService autorizacaoService) {
+        this.autorizacaoService = autorizacaoService;
+    }
+
     @GetMapping("/fichas/editar")
     public String abrirTelaEdicao(
             @RequestParam("fichaId") int fichaId,
-            @RequestParam("usuarioId") int usuarioId,
+            Authentication authentication,
             Model model
     ) {
-        // 1. Busca a Ficha e o Usuário
-        Ficha ficha = FichaDAO.buscarFichaPorId(fichaId);
-        Usuario usuario = UsuarioDAO.buscarUsuarioPorId(usuarioId);
-        
-        if (ficha != null && usuario != null) {
-            // 2. Verifica se é Mestre
-            boolean isMestre = PerfilAcesso.MESTRE.equals(usuario.getPerfil()) || PerfilAcesso.ADMIN.equals(usuario.getPerfil());
-            
-            // 3. Busca todas as Classes para preencher o menu
-            List<Classe> todasAsClasses = ClasseDAO.listarTodasAsClasses();
-            
-            // 4. Envia tudo para o HTML
-            Corrupcao corrupcao = Corrupcao.calcular(ficha.getCorrupcao());
-            model.addAttribute("ficha", ficha);
-            model.addAttribute("classesDisponiveis", todasAsClasses);
-            model.addAttribute("usuarioId", usuarioId);
-            model.addAttribute("isMestre", isMestre);
-            model.addAttribute("corrupcao", corrupcao);
-            
-            return "editar-ficha"; 
-        }
-        
-        return "redirect:/index";
+        Usuario usuario = autorizacaoService.exigirUsuarioAutenticado(authentication);
+        Ficha ficha = autorizacaoService.exigirAcessoFicha(usuario, fichaId);
+        boolean isMestre = autorizacaoService.isMestreOuAdmin(usuario);
+
+        List<Classe> todasAsClasses = ClasseDAO.listarTodasAsClasses();
+        Corrupcao corrupcao = Corrupcao.calcular(ficha.getCorrupcao());
+
+        model.addAttribute("ficha", ficha);
+        model.addAttribute("classesDisponiveis", todasAsClasses);
+        model.addAttribute("usuarioId", usuario.getId());
+        model.addAttribute("isMestre", isMestre);
+        model.addAttribute("corrupcao", corrupcao);
+
+        return "editar-ficha";
     }
 
-    // ==================================================
-    // SALVAR FICHA EDITADA
-    // ==================================================
-@PostMapping("/fichas/salvar")
+    @PostMapping("/fichas/salvar")
     public String salvarEdicao(
-            @ModelAttribute Ficha fichaAtualizada, 
-            @RequestParam(value = "usuarioId", required = false) Integer usuarioId 
+            @ModelAttribute Ficha fichaAtualizada,
+            Authentication authentication
     ) {
-        System.out.println("--- INICIANDO TENTATIVA DE SALVAR FICHA ---");
-        System.out.println("Ficha recebida do HTML: " + fichaAtualizada.getNome() + " | ID da Ficha: " + fichaAtualizada.getId());
-        System.out.println("ID do Usuário logado: " + usuarioId);
+        Usuario usuarioLogado = autorizacaoService.exigirUsuarioAutenticado(authentication);
+        Ficha fichaOriginal = autorizacaoService.exigirAcessoFicha(usuarioLogado, fichaAtualizada.getId());
+        boolean isMestre = autorizacaoService.isMestreOuAdmin(usuarioLogado);
 
-        if (usuarioId == null) {
-            System.out.println("ERRO: usuarioId é nulo! Abortando...");
-            return "redirect:/index";
+        // Impede transferência indevida de propriedade da ficha
+        fichaAtualizada.setUsuarioId(fichaOriginal.getUsuarioId());
+
+        if (!isMestre) {
+            fichaAtualizada.setSaldoAtual(fichaOriginal.getSaldoAtual());
+            fichaAtualizada.setCustoVida(fichaOriginal.getCustoVida());
+            fichaAtualizada.setDiasRestantes(fichaOriginal.getDiasRestantes());
+            fichaAtualizada.setNutricao(fichaOriginal.getNutricao());
+            fichaAtualizada.setConexao(fichaOriginal.getConexao());
+            fichaAtualizada.setTitulo(fichaOriginal.getTitulo());
         }
 
-        Usuario usuarioLogado = UsuarioDAO.buscarUsuarioPorId(usuarioId);
-        Ficha fichaOriginal = FichaDAO.buscarFichaPorId(fichaAtualizada.getId());
-        
-        if (fichaOriginal == null) {
-            System.out.println("ERRO: Não encontrou a ficha original no banco de dados!");
-        } else {
-            System.out.println("Dono original da ficha (usuario_id): " + fichaOriginal.getUsuarioId());
-        }
+        FichaDAO.atualizarFicha(fichaAtualizada);
 
-        boolean isMestre = false;
-        
-        if (fichaOriginal != null && usuarioLogado != null) {
-            boolean isDono = (fichaOriginal.getUsuarioId() == usuarioLogado.getId());
-            isMestre = PerfilAcesso.MESTRE.equals(usuarioLogado.getPerfil()) || PerfilAcesso.ADMIN.equals(usuarioLogado.getPerfil());
-            
-            System.out.println("O usuário é o Dono? " + isDono);
-            System.out.println("O usuário é Mestre? " + isMestre);
-            
-            if (isDono || isMestre) {
-                // PROTEÇÃO: Se não for mestre, mantém os dados secretos originais
-                if (!isMestre) {
-                    fichaAtualizada.setSaldoAtual(fichaOriginal.getSaldoAtual());
-                    fichaAtualizada.setCustoVida(fichaOriginal.getCustoVida());
-                    fichaAtualizada.setDiasRestantes(fichaOriginal.getDiasRestantes());
-                    fichaAtualizada.setNutricao(fichaOriginal.getNutricao());
-                    fichaAtualizada.setConexao(fichaOriginal.getConexao());
-                    fichaAtualizada.setTitulo(fichaOriginal.getTitulo());
-                }
-                
-                boolean sucesso = FichaDAO.atualizarFicha(fichaAtualizada);
-                System.out.println("RESULTADO DO SALVAMENTO NO MYSQL: " + (sucesso ? "SUCESSO!" : "FALHA NO SQL!"));
-            } else {
-                System.out.println("BLOQUEADO: O utilizador não tem permissão para editar esta ficha.");
-            }
-        }
-        
-        System.out.println("--- FIM DA TENTATIVA ---");
-        
         if (isMestre) {
-            return "redirect:/painel-mestre?usuarioId=" + usuarioId;
+            return "redirect:/painel-mestre";
         }
-        
-        return "redirect:/painel-player?usuarioId=" + usuarioId;
+        return "redirect:/painel-player";
     }
 }

@@ -85,9 +85,10 @@ SystemRPG/
 
 ## Segurança e Variáveis de Ambiente
 
-- As senhas de usuários são armazenadas com hash **BCrypt**.
-- O arquivo `zero/src/main/resources/application.properties` lê todas as credenciais a partir de **variáveis de ambiente** (`${DB_URL}`, `${DB_USERNAME}`, `${DB_PASSWORD}`, `${PORT}`), sem segredos fixos no código.
-- O arquivo `.env` local é ignorado pelo Git (`.gitignore`). Utilize `zero/.env.example` apenas como modelo de referência.
+- **Autenticação e Senhas:** Spring Security com senhas armazenadas exclusivamente com hash **BCrypt**.
+- **Controle de Acesso e Prevenção de IDOR (`AutorizacaoService`):** A identidade do usuário é obtida exclusivamente do contexto de autenticação (`SecurityContext`/`Authentication`), ignorando qualquer `usuarioId` enviado pelo cliente. Operações em fichas e inventário validam propriedade (`Item → Ficha → Usuário`), retornando `403 Forbidden` ou `404 Not Found` em acessos indevidos, e rotas administrativas (`/painel-mestre/**`, `/Manual/criar`, `/classes/salvar`, `/habilidades/salvar`) exigem perfil `MESTRE` ou `ADMIN`.
+- **Proteção CSRF Ativa:** Habilitada para todas as operações de escrita baseadas em sessão; os formulários Thymeleaf usam `th:action` (injeção automática do token `_csrf`) e as chamadas `fetch()` enviam o cabeçalho CSRF via meta tags.
+- **Segredos Isolados:** O arquivo `zero/src/main/resources/application.properties` lê todas as credenciais a partir de **variáveis de ambiente** (`${DB_URL}`, `${DB_USERNAME}`, `${DB_PASSWORD}`, `${PORT}`), e `.env` é ignorado no `.gitignore`. Utilize `zero/.env.example` apenas como modelo.
 
 | Variável | Descrição | Padrão |
 | :--- | :--- | :--- |
@@ -236,7 +237,8 @@ A suíte de testes usa **JUnit 5**, **Mockito**, **Spring Security Test** e **H2
 - `ZeroApplicationTests`: valida bootstrap do contexto Spring e configuração do `BCryptPasswordEncoder`.
 - `DadoServiceTest`: testa rolagem com modificadores positivos/negativos, notação reduzida (`d20`), entradas vazias e rejeição de limites inválidos (`0d20`, `101d6`, `1d10001`).
 - `CorrupcaoAndFichaTest`: valida todos os 7 estágios de corrupção, atributos derivados da `Ficha` e a matriz de permissões RBAC de `PerfilAcesso`.
-- `DadoAndSecurityControllerTest` (`MockMvc`): valida rotas públicas, redirecionamento de acessos anônimos para `/index`, rolagem autenticada com envio ao tópico `/topic/mestre` e validação HTTP `400` no inventário.
+- `DadoAndSecurityControllerTest` (`MockMvc`): valida rotas públicas, redirecionamento de acessos anônimos para `/index`, bloqueio `403` em POST sem token CSRF ou com token inválido e rolagem autenticada com envio ao tópico `/topic/mestre`.
+- `SegurancaIdorIntegrationTest` (`MockMvc` + H2 real com `schema.sql`): comprova ponta a ponta que um jogador consegue operar sua própria ficha/inventário, recebe `403 Forbidden` ao tentar consultar, editar ou excluir ficha ou item de outro jogador (mesmo forjando `usuarioId`), é bloqueado em rotas de Mestre, recebe `404` para recursos inexistentes e que o perfil `MESTRE` atua dentro do escopo autorizado.
 
 ```bash
 cd zero
@@ -249,9 +251,8 @@ O workflow `.github/workflows/ci.yml` executa a compilação e toda a suíte aut
 
 ## Limitações Conhecidas e Próximos Passos
 
-- Reativar proteção **CSRF** com injeção explícita de tokens nos formulários Thymeleaf e requisições `fetch()`.
-- Substituir parâmetros de query (`?usuarioId=`) pela resolução exclusiva do usuário autenticado via `Principal` / `SecurityContext` em todos os controllers.
-- Expandir a camada `Service` e DTOs para reduzir acoplamento direto entre controllers e DAOs JDBC.
+- Adotar migrations versionadas com **Flyway** ou **Liquibase** para eliminar dependência de `ddl-auto=update` em produção.
+- Expandir a camada `Service` e DTOs com Bean Validation para desacoplar ainda mais controllers dos DAOs JDBC.
 - Publicar documentação interativa OpenAPI/Swagger para os endpoints `/api/**`.
 
 ---

@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
     <title>Mochila do Herói</title>
     <style>
         body {
@@ -194,6 +196,15 @@
 
 <script>
     const fichaId = parseInt(document.getElementById('fichaIdAtual').value);
+    const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
+
+    function buildHeaders(json = false) {
+        const headers = {};
+        if (json) headers['Content-Type'] = 'application/json';
+        if (csrfToken && csrfHeader) headers[csrfHeader] = csrfToken;
+        return headers;
+    }
 
     async function carregarInventario() {
         const tbody = document.getElementById('lista-itens');
@@ -253,7 +264,7 @@
         try {
             const resposta = await fetch('/api/inventario/adicionar', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: buildHeaders(true),
                 body: JSON.stringify(novoItem)
             });
 
@@ -329,7 +340,7 @@
         try {
             const resposta = await fetch(`/api/inventario/atualizar/${id}`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
+                headers: buildHeaders(true),
                 body: JSON.stringify(itemAtualizado)
             });
 
@@ -350,7 +361,8 @@
 
         try {
             const resposta = await fetch(`/api/inventario/deletar/${id}`, {
-                method: 'DELETE'
+                method: 'DELETE',
+                headers: buildHeaders(false)
             });
 
             if (resposta.ok) {

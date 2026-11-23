@@ -58,6 +58,7 @@ habilidades,classe_id,INT,,,classes(id)
 ficha_habilidades,ficha_id,INT,NOT NULL PRIMARY KEY,,fichas(id)
 ficha_habilidades,habilidade_id,INT,NOT NULL PRIMARY KEY,,habilidades(id)
 inventario_rpg,id,BIGINT,AUTO_INCREMENT PRIMARY KEY,,
+inventario_rpg,ficha_id,INT,NOT NULL,,fichas(id)
 inventario_rpg,nome,VARCHAR(255),NOT NULL,,
 inventario_rpg,tipo,VARCHAR(100),,,
 inventario_rpg,raridade,VARCHAR(50),,,

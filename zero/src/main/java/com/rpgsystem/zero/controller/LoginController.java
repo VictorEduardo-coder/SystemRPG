@@ -1,7 +1,7 @@
 package com.rpgsystem.zero.controller;
 
-import org.springframework.security.core.Authentication;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,9 +24,9 @@ public class LoginController {
             Usuario usuario = UsuarioDAO.buscarUsuarioPorLogin(authentication.getName());
             if (usuario != null) {
                 if (PerfilAcesso.MESTRE.equals(usuario.getPerfil()) || PerfilAcesso.ADMIN.equals(usuario.getPerfil())) {
-                    return "redirect:/painel-mestre?usuarioId=" + usuario.getId();
+                    return "redirect:/painel-mestre";
                 }
-                return "redirect:/painel-player?usuarioId=" + usuario.getId();
+                return "redirect:/painel-player";
             }
         }
 

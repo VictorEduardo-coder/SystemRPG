@@ -146,7 +146,7 @@
 
         <div th:if="${isMestre}" class="section-master-regra">
             <h3>➕ Adicionar Nova Regra ao Sistema</h3>
-            <form action="/Manual/criar" method="post">
+            <form th:action="@{/Manual/criar}" method="post">
                <input type="hidden" name="usuarioId" th:value="${usuarioId}">
                 
                 <div class="form-group">

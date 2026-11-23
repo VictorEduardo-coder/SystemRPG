@@ -25,6 +25,8 @@ public class SecurityConfig {
                 .requestMatchers("/", "/index", "/login", "/cadastro",
                         "/css/**", "/js/**", "/img/**",
                         "/webjars/**").permitAll()
+                .requestMatchers("/painel-mestre/**", "/Manual/criar",
+                        "/classes/salvar", "/habilidades/salvar").hasAnyRole("MESTRE", "ADMIN")
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
@@ -40,8 +42,7 @@ public class SecurityConfig {
                 .logoutUrl("/logout")
                 .logoutSuccessUrl("/index?logout=true")
                 .permitAll()
-            )
-            .csrf(csrf -> csrf.disable());
+            );
 
         return http.build();
     }
@@ -52,9 +53,9 @@ public class SecurityConfig {
             Usuario usuario = UsuarioDAO.buscarUsuarioPorLogin(authentication.getName());
             if (usuario != null) {
                 if (PerfilAcesso.MESTRE.equals(usuario.getPerfil()) || PerfilAcesso.ADMIN.equals(usuario.getPerfil())) {
-                    response.sendRedirect("/painel-mestre?usuarioId=" + usuario.getId());
+                    response.sendRedirect("/painel-mestre");
                 } else {
-                    response.sendRedirect("/painel-player?usuarioId=" + usuario.getId());
+                    response.sendRedirect("/painel-player");
                 }
             } else {
                 response.sendRedirect("/index?erro=true");

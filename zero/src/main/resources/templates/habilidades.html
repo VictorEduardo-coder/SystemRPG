@@ -42,7 +42,7 @@
             <details class="master-details">
                 <summary>➕ Criar Nova Classe</summary>
                 <div class="details-content">
-                    <form action="/classes/salvar" method="post" onsubmit="return validarClassesHibridas(event)">
+                    <form th:action="@{/classes/salvar}" method="post" onsubmit="return validarClassesHibridas(event)">
                         <input type="hidden" name="usuarioId" th:value="${usuarioId}">
                         <input type="text" name="nomeClasse" placeholder="Nome da Classe" required>
                         <input type="text" name="bonus" placeholder="Bônus da Classe">
@@ -76,7 +76,7 @@
             <details class="master-details">
                 <summary>➕ Adicionar Nova Habilidade</summary>
                 <div class="details-content">
-                    <form action="/habilidades/salvar" method="post">
+                    <form th:action="@{/habilidades/salvar}" method="post">
                         <input type="hidden" name="usuarioId" th:value="${usuarioId}">
                         
                         <label style="color: #a1a1a1; font-size: 0.9em; font-weight: bold;">Vincular Habilidade à Classe:</label>

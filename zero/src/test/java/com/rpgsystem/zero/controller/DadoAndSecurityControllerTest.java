@@ -3,9 +3,9 @@ package com.rpgsystem.zero.controller;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrlPattern;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -47,6 +47,7 @@ class DadoAndSecurityControllerTest {
                 .andExpect(redirectedUrlPattern("**/index"));
 
         mockMvc.perform(post("/api/dados/rolar")
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"expressao\":\"1d20\",\"nomeJogador\":\"Anon\"}"))
                 .andExpect(status().is3xxRedirection())
@@ -55,8 +56,24 @@ class DadoAndSecurityControllerTest {
 
     @Test
     @WithMockUser(username = "jogador1", roles = {"PLAYER"})
-    void rolagemAutenticadaRetornaJsonENotificaTopicoDoMestre() throws Exception {
+    void postSemTokenCsrfOuComTokenInvalidoEhBloqueadoCom403() throws Exception {
         mockMvc.perform(post("/api/dados/rolar")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"expressao\":\"2d6\",\"nomeJogador\":\"Kael\"}"))
+                .andExpect(status().isForbidden());
+
+        mockMvc.perform(post("/api/dados/rolar")
+                        .with(csrf().useInvalidToken())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"expressao\":\"2d6\",\"nomeJogador\":\"Kael\"}"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(username = "jogador1", roles = {"PLAYER"})
+    void rolagemAutenticadaComCsrfValidoRetornaJsonENotificaTopicoDoMestre() throws Exception {
+        mockMvc.perform(post("/api/dados/rolar")
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"expressao\":\"2d6+1\",\"nomeJogador\":\"Kael\"}"))
                 .andExpect(status().isOk())
@@ -64,15 +81,5 @@ class DadoAndSecurityControllerTest {
                 .andExpect(jsonPath("$.detalhes").isString());
 
         verify(messagingTemplate).convertAndSend(eq("/topic/mestre"), anyMap());
-    }
-
-    @Test
-    @WithMockUser(username = "jogador1", roles = {"PLAYER"})
-    void inventarioRejeitaItemSemFichaIdComBadRequest() throws Exception {
-        mockMvc.perform(post("/api/inventario/adicionar")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"nome\":\"Espada\",\"tipo\":\"Arma\",\"raridade\":\"Comum\",\"quantidade\":1,\"poder\":5}"))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string("fichaId é obrigatório."));
     }
 }

@@ -2,6 +2,7 @@ package com.rpgsystem.zero.controller;
 
 import java.util.List;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,112 +12,101 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.rpgsystem.zero.model.Classe;
 import com.rpgsystem.zero.model.Corrupcao;
 import com.rpgsystem.zero.model.Ficha;
+import com.rpgsystem.zero.model.Usuario;
 import com.rpgsystem.zero.repository.ClasseDAO;
 import com.rpgsystem.zero.repository.FichaDAO;
+import com.rpgsystem.zero.service.AutorizacaoService;
 
 @Controller
 public class JogadorController {
 
-    // ==================================================
-    // MOSTRAR O PAINEL DO JOGADOR
-    // ==================================================
+    private final AutorizacaoService autorizacaoService;
+
+    public JogadorController(AutorizacaoService autorizacaoService) {
+        this.autorizacaoService = autorizacaoService;
+    }
+
     @GetMapping("/painel-player")
     public String exibirPainelPlayer(
-            @RequestParam(value = "usuarioId", required = false) Integer usuarioId, 
-            Model model) {
-        
-        // Se o ID for nulo, redireciona para o login em vez de travar
-        if (usuarioId == null) {
-            return "redirect:/index";
+            @RequestParam(value = "fichaId", required = false) Integer fichaId,
+            Authentication authentication,
+            Model model
+    ) {
+        Usuario usuario = autorizacaoService.exigirUsuarioAutenticado(authentication);
+        boolean isMestre = autorizacaoService.isMestreOuAdmin(usuario);
+
+        Ficha ficha;
+        if (fichaId != null) {
+            ficha = autorizacaoService.exigirAcessoFicha(usuario, fichaId);
+        } else {
+            ficha = FichaDAO.buscarFichaPorUsuario(usuario.getId());
         }
-        
-        Ficha ficha = FichaDAO.buscarFichaPorUsuario(usuarioId);
-        
-        // Busca todas as classes existentes no banco
+
         List<Classe> todasAsClasses = ClasseDAO.listarTodasAsClasses();
-        
-        // Calcula a corrupção
         Corrupcao corrupcao = Corrupcao.calcular(ficha != null ? ficha.getCorrupcao() : 0);
-        
+
         model.addAttribute("ficha", ficha);
-        model.addAttribute("classesDisponiveis", todasAsClasses); // Envia as classes para o HTML
-        model.addAttribute("usuarioId", usuarioId);
-        model.addAttribute("isMestre", false);
-        model.addAttribute("corrupcao", corrupcao); 
-        
+        model.addAttribute("classesDisponiveis", todasAsClasses);
+        model.addAttribute("usuarioId", usuario.getId());
+        model.addAttribute("isMestre", isMestre);
+        model.addAttribute("corrupcao", corrupcao);
+
         return "painel-player";
     }
 
-    // ==================================================
-    // CRIAR UMA NOVA FICHA (PLAYER, NPC, MONSTRO OU BOSS)
-    // ==================================================
     @PostMapping("/fichas/criar")
     public String criarNovaFicha(
-            @RequestParam(value = "usuarioId", required = false) Integer usuarioId, 
             @RequestParam String nomePersonagem,
-            @RequestParam(required = false, defaultValue = "PLAYER") String tipoFicha
+            @RequestParam(required = false, defaultValue = "PLAYER") String tipoFicha,
+            Authentication authentication
     ) {
-        
-        // 1. Trava de Segurança: Se o ID vier vazio, aborta para não dar tela branca
-        if (usuarioId == null) {
-            System.out.println("ERRO: O navegador não enviou o usuarioId ao criar a ficha.");
-            return "redirect:/index"; // Volta pro login por segurança
+        Usuario usuario = autorizacaoService.exigirUsuarioAutenticado(authentication);
+
+        if (!"PLAYER".equalsIgnoreCase(tipoFicha)) {
+            autorizacaoService.exigirMestreOuAdmin(usuario, "criar_entidade_" + tipoFicha);
         }
 
-        // 2. Cria a ficha no banco de dados com o tipo correto
-        FichaDAO.criarFicha(usuarioId, nomePersonagem, tipoFicha);
-        
-        // 3. Verifica qual era o tipo de ficha e devolve o mestre para a tela certa
+        FichaDAO.criarFicha(usuario.getId(), nomePersonagem, tipoFicha);
+
         if ("NPC".equalsIgnoreCase(tipoFicha)) {
-            return "redirect:/painel-mestre/npcs?usuarioId=" + usuarioId;
+            return "redirect:/painel-mestre/npcs";
         } else if ("MONSTRO".equalsIgnoreCase(tipoFicha)) {
-            return "redirect:/painel-mestre/monstros?usuarioId=" + usuarioId;
+            return "redirect:/painel-mestre/monstros";
         } else if ("BOSS".equalsIgnoreCase(tipoFicha)) {
-            return "redirect:/painel-mestre/boss?usuarioId=" + usuarioId;
+            return "redirect:/painel-mestre/boss";
         }
-        
-        // Se for PLAYER, volta pro painel do jogador
-        return "redirect:/painel-player?usuarioId=" + usuarioId;
+
+        return "redirect:/painel-player";
     }
 
-    // ==================================================
-    // REDIRECIONAR PARA O MANUAL
-    // ==================================================
     @GetMapping("/painel-player/manual")
-    public String redirecionarParaManual(@RequestParam(value = "usuarioId", required = false) Integer usuarioId) {
-        if (usuarioId != null) {
-            // Redireciona para a página do manual enviando o ID do jogador
-            return "redirect:/Manual?usuarioId=" + usuarioId;
-        }
+    public String redirecionarParaManual() {
         return "redirect:/Manual";
     }
 
-    // ==================================================
-    // ELIMINAR A FICHA
-    // ==================================================
     @PostMapping("/fichas/deletar")
-    public String deletarFicha(@RequestParam int fichaId, @RequestParam int usuarioId) {
-        
-        FichaDAO.deletarFicha(fichaId, usuarioId);
-        
-        // Redireciona de volta para o painel (que agora aparecerá vazio)
-        return "redirect:/painel-player?usuarioId=" + usuarioId;
+    public String deletarFicha(
+            @RequestParam int fichaId,
+            Authentication authentication
+    ) {
+        Usuario usuario = autorizacaoService.exigirUsuarioAutenticado(authentication);
+        Ficha ficha = autorizacaoService.exigirAcessoFicha(usuario, fichaId);
+
+        FichaDAO.deletarFicha(ficha.getId(), ficha.getUsuarioId());
+        return "redirect:/painel-player";
     }
-    
-    // ==================================================
-    // ABRIR O INVENTÁRIO DO JOGADOR
-    // ==================================================
+
     @GetMapping("/inventario")
     public String abrirInventario(
-            @RequestParam(value = "fichaId") Integer fichaId, 
-            @RequestParam(value = "usuarioId") Integer usuarioId, 
-            Model model) {
-        
-        // Passamos os IDs para o HTML, assim podemos fazer um botão de "Voltar" funcional na tela de inventário
+            @RequestParam("fichaId") Integer fichaId,
+            Authentication authentication,
+            Model model
+    ) {
+        Usuario usuario = autorizacaoService.exigirUsuarioAutenticado(authentication);
+        autorizacaoService.exigirAcessoFicha(usuario, fichaId);
+
         model.addAttribute("fichaId", fichaId);
-        model.addAttribute("usuarioId", usuarioId);
-        
-        // Retorna a view "inventario.html" que está na sua pasta de templates
+        model.addAttribute("usuarioId", usuario.getId());
         return "inventario";
     }
 }

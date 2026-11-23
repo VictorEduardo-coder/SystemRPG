@@ -98,7 +98,7 @@
         <h1>🗣️ Personagens Não-Jogáveis (NPCs)</h1>
 
         <div class="header-actions">
-            <form action="/fichas/criar" method="post" style="display: flex; gap: 10px; align-items: center; width: 100%;">
+            <form th:action="@{/fichas/criar}" method="post" style="display: flex; gap: 10px; align-items: center; width: 100%;">
                 <input type="hidden" name="usuarioId" th:value="${usuarioId}">
                 <input type="hidden" name="tipoFicha" value="NPC">
                 
@@ -130,7 +130,7 @@
                     <td>
                         <a th:href="@{/painel-player(usuarioId=${usuarioId}, fichaId=${npc.id})}" class="btn btn-ver">👁️ Ver</a>
                         <a th:href="@{/fichas/editar(fichaId=${npc.id}, usuarioId=${usuarioId})}" class="btn btn-editar">✏️ Editar</a>
-                        <form action="/painel-mestre/npcs/deletar" method="post" style="display:inline;" onsubmit="return confirm('Deseja apagar este NPC permanentemente?');">
+                        <form th:action="@{/painel-mestre/npcs/deletar}" method="post" style="display:inline;" onsubmit="return confirm('Deseja apagar este NPC permanentemente?');">
                         <input type="hidden" name="fichaId" th:value="${npc.id}">
                         <input type="hidden" name="usuarioId" th:value="${usuarioId}">
                         <button type="submit" class="btn btn-apagar">🗑️ Apagar</button>

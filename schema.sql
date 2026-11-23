@@ -1,4 +1,4 @@
-CREATE TABLE usuarios (
+CREATE TABLE IF NOT EXISTS usuarios (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(255) NOT NULL,
     login VARCHAR(255) UNIQUE NOT NULL,
@@ -6,7 +6,7 @@ CREATE TABLE usuarios (
     tipo_conta VARCHAR(50) NOT NULL
 );
 
-CREATE TABLE classes (
+CREATE TABLE IF NOT EXISTS classes (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(255) NOT NULL,
     bonus VARCHAR(255),
@@ -19,7 +19,7 @@ CREATE TABLE classes (
     FOREIGN KEY (classe_base2_id) REFERENCES classes(id)
 );
 
-CREATE TABLE fichas (
+CREATE TABLE IF NOT EXISTS fichas (
     id INT AUTO_INCREMENT PRIMARY KEY,
     usuario_id INT NOT NULL,
     nome VARCHAR(255) NOT NULL,
@@ -59,7 +59,7 @@ CREATE TABLE fichas (
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
 );
 
-CREATE TABLE habilidades (
+CREATE TABLE IF NOT EXISTS habilidades (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(255) NOT NULL,
     descricao TEXT,
@@ -70,7 +70,7 @@ CREATE TABLE habilidades (
     FOREIGN KEY (classe_id) REFERENCES classes(id)
 );
 
-CREATE TABLE ficha_habilidades (
+CREATE TABLE IF NOT EXISTS ficha_habilidades (
     ficha_id INT NOT NULL,
     habilidade_id INT NOT NULL,
     PRIMARY KEY (ficha_id, habilidade_id),
@@ -78,16 +78,18 @@ CREATE TABLE ficha_habilidades (
     FOREIGN KEY (habilidade_id) REFERENCES habilidades(id) ON DELETE CASCADE
 );
 
-CREATE TABLE inventario_rpg (
+CREATE TABLE IF NOT EXISTS inventario_rpg (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    ficha_id INT NOT NULL,
     nome VARCHAR(255) NOT NULL,
     tipo VARCHAR(100),
     raridade VARCHAR(50),
     quantidade INT,
-    poder INT
+    poder INT,
+    FOREIGN KEY (ficha_id) REFERENCES fichas(id) ON DELETE CASCADE
 );
 
-CREATE TABLE manual_regras (
+CREATE TABLE IF NOT EXISTS manual_regras (
     id INT AUTO_INCREMENT PRIMARY KEY,
     titulo VARCHAR(255) NOT NULL,
     descricao TEXT,

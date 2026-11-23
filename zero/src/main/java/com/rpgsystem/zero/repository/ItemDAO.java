@@ -15,6 +15,35 @@ import com.rpgsystem.zero.model.ItemRPG;
 @Repository
 public class ItemDAO {
 
+    public ItemRPG buscarItemPorId(Long id) {
+        if (id == null) {
+            return null;
+        }
+        String sql = "SELECT * FROM inventario_rpg WHERE id = ?";
+
+        try (Connection conn = ConexaoDB.conectar();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setLong(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return new ItemRPG(
+                        rs.getLong("id"),
+                        rs.getInt("ficha_id"),
+                        rs.getString("nome"),
+                        rs.getString("tipo"),
+                        rs.getString("raridade"),
+                        rs.getInt("quantidade"),
+                        rs.getInt("poder")
+                    );
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public List<ItemRPG> listarInventarioPorFicha(int fichaId) {
         List<ItemRPG> inventario = new ArrayList<>();
         String sql = "SELECT * FROM inventario_rpg WHERE ficha_id = ? ORDER BY raridade DESC";

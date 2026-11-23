@@ -3,6 +3,7 @@ package com.rpgsystem.zero.controller;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,95 +14,85 @@ import com.rpgsystem.zero.model.Ficha;
 import com.rpgsystem.zero.model.FichaBoss;
 import com.rpgsystem.zero.model.FichaMonstro;
 import com.rpgsystem.zero.model.FichaNPC;
+import com.rpgsystem.zero.model.Usuario;
 import com.rpgsystem.zero.repository.FichaDAO;
+import com.rpgsystem.zero.service.AutorizacaoService;
 
 @Controller
 public class MestreEntidadesController {
 
-    // ==================================================
-    // ROTA: PAINEL DE NPCS
-    // ==================================================
+    private final AutorizacaoService autorizacaoService;
+
+    public MestreEntidadesController(AutorizacaoService autorizacaoService) {
+        this.autorizacaoService = autorizacaoService;
+    }
+
     @GetMapping("/painel-mestre/npcs")
-    public String exibirNPCs(
-            @RequestParam(value = "usuarioId", required = false) Integer usuarioId, 
-            Model model
-    ) {
-        List<Ficha> todasAsFichas = FichaDAO.buscarTodasAsFichas();
-        
-        List<Ficha> npcs = todasAsFichas.stream()
+    public String exibirNPCs(Authentication authentication, Model model) {
+        Usuario usuario = autorizacaoService.exigirUsuarioAutenticado(authentication);
+        autorizacaoService.exigirMestreOuAdmin(usuario, "listar_npcs");
+
+        List<Ficha> npcs = FichaDAO.buscarTodasAsFichas().stream()
                 .filter(ficha -> ficha instanceof FichaNPC)
                 .collect(Collectors.toList());
 
         model.addAttribute("fichasNPC", npcs);
-        model.addAttribute("usuarioId", usuarioId);
-        
+        model.addAttribute("usuarioId", usuario.getId());
         return "painel-npcs";
     }
 
     @PostMapping("/painel-mestre/npcs/deletar")
-    public String deletarNPC(
-            @RequestParam("fichaId") int fichaId, 
-            @RequestParam("usuarioId") int usuarioId
-    ) {
-        FichaDAO.deletarFicha(fichaId, usuarioId);
-        return "redirect:/painel-mestre/npcs?usuarioId=" + usuarioId;
+    public String deletarNPC(@RequestParam("fichaId") int fichaId, Authentication authentication) {
+        Usuario usuario = autorizacaoService.exigirUsuarioAutenticado(authentication);
+        autorizacaoService.exigirMestreOuAdmin(usuario, "deletar_npc");
+
+        FichaDAO.deletarFichaPorId(fichaId);
+        return "redirect:/painel-mestre/npcs";
     }
 
-    // ==================================================
-    // ROTA: PAINEL DE MONSTROS
-    // ==================================================
     @GetMapping("/painel-mestre/monstros")
-    public String exibirMonstros(
-            @RequestParam(value = "usuarioId", required = false) Integer usuarioId, 
-            Model model
-    ) {
-        List<Ficha> todasAsFichas = FichaDAO.buscarTodasAsFichas();
-        
-        List<Ficha> monstros = todasAsFichas.stream()
+    public String exibirMonstros(Authentication authentication, Model model) {
+        Usuario usuario = autorizacaoService.exigirUsuarioAutenticado(authentication);
+        autorizacaoService.exigirMestreOuAdmin(usuario, "listar_monstros");
+
+        List<Ficha> monstros = FichaDAO.buscarTodasAsFichas().stream()
                 .filter(ficha -> ficha instanceof FichaMonstro)
                 .collect(Collectors.toList());
 
         model.addAttribute("fichasMonstro", monstros);
-        model.addAttribute("usuarioId", usuarioId);
-        
+        model.addAttribute("usuarioId", usuario.getId());
         return "painel-monstros";
     }
 
     @PostMapping("/painel-mestre/monstros/deletar")
-    public String deletarMonstro(
-            @RequestParam("fichaId") int fichaId, 
-            @RequestParam("usuarioId") int usuarioId
-    ) {
-        FichaDAO.deletarFicha(fichaId, usuarioId);
-        return "redirect:/painel-mestre/monstros?usuarioId=" + usuarioId;
+    public String deletarMonstro(@RequestParam("fichaId") int fichaId, Authentication authentication) {
+        Usuario usuario = autorizacaoService.exigirUsuarioAutenticado(authentication);
+        autorizacaoService.exigirMestreOuAdmin(usuario, "deletar_monstro");
+
+        FichaDAO.deletarFichaPorId(fichaId);
+        return "redirect:/painel-mestre/monstros";
     }
 
-    // ==================================================
-    // ROTA: PAINEL DE BOSSES
-    // ==================================================
     @GetMapping("/painel-mestre/boss")
-    public String exibirBosses(
-            @RequestParam(value = "usuarioId", required = false) Integer usuarioId, 
-            Model model
-    ) {
-        List<Ficha> todasAsFichas = FichaDAO.buscarTodasAsFichas();
-        
-        List<Ficha> bosses = todasAsFichas.stream()
+    public String exibirBosses(Authentication authentication, Model model) {
+        Usuario usuario = autorizacaoService.exigirUsuarioAutenticado(authentication);
+        autorizacaoService.exigirMestreOuAdmin(usuario, "listar_bosses");
+
+        List<Ficha> bosses = FichaDAO.buscarTodasAsFichas().stream()
                 .filter(ficha -> ficha instanceof FichaBoss)
                 .collect(Collectors.toList());
 
         model.addAttribute("fichasBoss", bosses);
-        model.addAttribute("usuarioId", usuarioId);
-        
+        model.addAttribute("usuarioId", usuario.getId());
         return "painel-boss";
     }
 
     @PostMapping("/painel-mestre/boss/deletar")
-    public String deletarBoss(
-            @RequestParam("fichaId") int fichaId, 
-            @RequestParam("usuarioId") int usuarioId
-    ) {
-        FichaDAO.deletarFicha(fichaId, usuarioId);
-        return "redirect:/painel-mestre/boss?usuarioId=" + usuarioId;
+    public String deletarBoss(@RequestParam("fichaId") int fichaId, Authentication authentication) {
+        Usuario usuario = autorizacaoService.exigirUsuarioAutenticado(authentication);
+        autorizacaoService.exigirMestreOuAdmin(usuario, "deletar_boss");
+
+        FichaDAO.deletarFichaPorId(fichaId);
+        return "redirect:/painel-mestre/boss";
     }
 }
